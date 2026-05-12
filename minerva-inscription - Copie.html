@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minerva — Inscription</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary: #3B4FC4;
+    --primary-light: #6B7FE3;
+    --primary-pale: #E8ECFB;
+    --green: #3AAF85;
+    --green-light: #5DCAA5;
+    --bg: #F7F2EE;
+    --surface: #FFFFFF;
+    --text: #1A1A2E;
+    --text-muted: #6B7280;
+    --border: rgba(59,79,196,0.15);
+    --stripe-pink: rgba(220,160,160,0.18);
+    --stripe-blue: rgba(130,160,230,0.18);
+    --red: #EF4444;
+  }
+
+  body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+  /* stripes */
+  .bg-stripes { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .bg-stripes::before, .bg-stripes::after { content: ''; position: absolute; top: 0; bottom: 0; width: 100%; }
+  .bg-stripes::before {
+    background: repeating-linear-gradient(to right, transparent, transparent 60px, var(--stripe-pink) 60px, var(--stripe-pink) 80px);
+    animation: shiftStripes 14s linear infinite;
+  }
+  .bg-stripes::after {
+    background: repeating-linear-gradient(to right, transparent, transparent 90px, var(--stripe-blue) 90px, var(--stripe-blue) 100px);
+    animation: shiftStripes 22s linear infinite reverse; opacity: 0.5;
+  }
+  @keyframes shiftStripes { from { transform: translateX(0); } to { transform: translateX(100px); } }
+
+  .cursor-glow {
+    position: fixed; width: 340px; height: 340px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(59,79,196,0.08) 0%, transparent 70%);
+    pointer-events: none; z-index: 0; transform: translate(-50%,-50%); transition: transform 0.1s ease-out;
+  }
+
+  /* NAV */
+  nav { position: sticky; top: 0; z-index: 100; background: rgba(247,242,238,0.85); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+  .nav-inner { display: flex; align-items: center; gap: 2.5rem; height: 64px; max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+  .logo { font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: var(--primary); text-decoration: none; letter-spacing: -0.02em; border-bottom: 2.5px solid var(--primary); padding-bottom: 1px; white-space: nowrap; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { font-size: 0.88rem; font-weight: 500; color: var(--text); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--primary); }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 0.75rem; }
+  .btn-outline { padding: 0.45rem 1.1rem; border: 1.5px solid var(--primary); border-radius: 8px; font-size: 0.83rem; font-weight: 500; color: var(--primary); background: transparent; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+  .btn-outline:hover { background: var(--primary-pale); }
+  .btn-nav-primary { padding: 0.48rem 1.3rem; border: none; border-radius: 8px; font-size: 0.83rem; font-weight: 600; color: #fff; background: var(--primary); cursor: pointer; text-decoration: none; transition: background 0.2s, transform 0.15s; box-shadow: 0 2px 12px rgba(59,79,196,0.25); }
+  .btn-nav-primary:hover { background: var(--primary-light); transform: translateY(-1px); }
+
+  /* PAGE */
+  .page {
+    position: relative; z-index: 1;
+    min-height: calc(100vh - 64px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 3rem 1.5rem;
+  }
+
+  .page-inner {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 3.5rem; align-items: center;
+    max-width: 1060px; width: 100%;
+  }
+
+  /* ── LEFT: FORM ── */
+  .form-card {
+    background: rgba(255,255,255,0.93);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.8);
+    border-radius: 24px;
+    padding: 2.4rem 2.2rem 2rem;
+    box-shadow: 0 20px 60px rgba(59,79,196,0.10);
+    opacity: 0; transform: translateY(24px);
+    animation: fadeUp 0.65s 0.1s forwards;
+  }
+
+  .form-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.55rem; letter-spacing: -0.02em;
+    color: var(--text); margin-bottom: 0.25rem; text-align: center;
+  }
+  .form-title em { font-style: italic; color: var(--primary); }
+  .form-sub { text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+
+  /* Social buttons */
+  .social-btns { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.25rem; }
+  .social-btn {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.62rem 1.1rem; border-radius: 10px;
+    font-family: 'Sora', sans-serif; font-size: 0.84rem; font-weight: 600;
+    cursor: pointer; transition: all 0.22s; border: 1.5px solid transparent;
+  }
+  .social-btn .icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .social-btn.google  { background: #fff; border-color: #DADCE0; color: var(--text); }
+  .social-btn.google:hover  { background: #F8F9FA; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+  .social-btn.linkedin  { background: #0A66C2; color: #fff; }
+  .social-btn.linkedin:hover  { background: #0857A7; transform: translateY(-1px); }
+  .social-btn.facebook  { background: #1877F2; color: #fff; }
+  .social-btn.facebook:hover  { background: #1461C7; transform: translateY(-1px); }
+
+  /* Divider */
+  .divider { display: flex; align-items: center; gap: 0.75rem; margin: 1rem 0 0.9rem; }
+  .divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
+  .divider span { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; text-align: center; line-height: 1.4; }
+
+  /* Form grid */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+  .form-group { margin-bottom: 0.85rem; }
+  .form-group label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+  .form-group label span { color: var(--red); }
+  .input-wrap { position: relative; }
+  .input-wrap input {
+    width: 100%; padding: 0.65rem 0.9rem;
+    border: 1.5px solid var(--border); border-radius: 10px;
+    font-family: 'Sora', sans-serif; font-size: 0.84rem; color: var(--text);
+    background: var(--surface); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .input-wrap input::placeholder { color: #C0C4CF; }
+  .input-wrap input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,79,196,0.1); }
+  .input-wrap input.error { border-color: var(--red); }
+  .input-wrap input.valid { border-color: var(--green); }
+  .pw-toggle { position: absolute; right: 0.8rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; transition: color 0.2s; }
+  .pw-toggle:hover { color: var(--primary); }
+
+  /* Password strength */
+  .pw-strength { display: flex; gap: 3px; margin-top: 0.35rem; }
+  .pw-bar { height: 3px; flex: 1; border-radius: 10px; background: var(--border); transition: background 0.3s; }
+  .pw-label { font-size: 0.67rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+  .err-msg { font-size: 0.7rem; color: var(--red); margin-top: 0.25rem; display: none; }
+  .err-msg.show { display: block; }
+
+  /* CGU */
+  .cgu-row { display: flex; align-items: flex-start; gap: 0.55rem; margin-bottom: 1.1rem; }
+  .cgu-row input[type="checkbox"] { width: 15px; height: 15px; margin-top: 2px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; }
+  .cgu-row label { font-size: 0.77rem; color: var(--text-muted); line-height: 1.5; cursor: pointer; }
+  .cgu-row label a { color: var(--primary); font-weight: 600; text-decoration: none; }
+  .cgu-row label a:hover { text-decoration: underline; }
+
+  /* Submit */
+  .btn-submit {
+    width: 100%; padding: 0.8rem;
+    border-radius: 10px; border: none;
+    background: var(--green); color: #fff;
+    font-family: 'Sora', sans-serif; font-size: 0.92rem; font-weight: 700;
+    letter-spacing: 0.01em; cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 16px rgba(58,175,133,0.3);
+  }
+  .btn-submit:hover { background: var(--green-light); transform: translateY(-1px); box-shadow: 0 6px 22px rgba(58,175,133,0.38); }
+  .btn-submit:active { transform: translateY(0); }
+  .btn-submit:disabled { background: #9CA3AF; box-shadow: none; cursor: not-allowed; transform: none; }
+
+  .login-link { text-align: center; font-size: 0.78rem; color: var(--text-muted); margin-top: 0.85rem; }
+  .login-link a { color: var(--primary); font-weight: 600; text-decoration: none; }
+  .login-link a:hover { text-decoration: underline; }
+
+  /* ── RIGHT: SHOWCASE ── */
+  .showcase {
+    opacity: 0; transform: translateY(20px);
+    animation: fadeUp 0.7s 0.3s forwards;
+  }
+
+  /* Device mockup */
+  .devices {
+    position: relative; margin-bottom: 2rem;
+    height: 260px; display: flex; align-items: flex-end; justify-content: center;
+  }
+
+  /* Laptop */
+  .laptop {
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 340px;
+  }
+  .laptop-screen {
+    background: #1A1A2E; border-radius: 10px 10px 0 0;
+    padding: 6px; border: 3px solid #2D3748;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  }
+  .laptop-screen-inner {
+    background: linear-gradient(135deg, #3B4FC4, #6B7FE3);
+    border-radius: 6px; height: 160px; overflow: hidden; position: relative;
+  }
+  .laptop-base { height: 12px; background: #2D3748; border-radius: 0 0 4px 4px; }
+  .laptop-foot { height: 6px; background: #4A5568; border-radius: 0 0 8px 8px; margin: 0 20px; }
+
+  /* Screen content */
+  .screen-nav { background: rgba(255,255,255,0.12); height: 18px; display: flex; align-items: center; padding: 0 8px; gap: 4px; }
+  .screen-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.4); }
+  .screen-bar { flex: 1; height: 4px; background: rgba(255,255,255,0.2); border-radius: 10px; }
+  .screen-body { padding: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .screen-card { background: rgba(255,255,255,0.15); border-radius: 5px; height: 28px; }
+  .screen-map { background: rgba(255,255,255,0.1); border-radius: 5px; height: 60px; grid-column: 1/-1; position: relative; overflow: hidden; }
+  .screen-map::after { content: '🗺️'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 1.5rem; }
+
+  /* Phone */
+  .phone {
+    position: absolute; bottom: 10px; right: 30px;
+    width: 82px;
+    background: #1A1A2E; border-radius: 14px; padding: 5px;
+    border: 2px solid #2D3748;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    animation: floatPhone 3.5s ease-in-out infinite;
+  }
+  .phone-screen { background: linear-gradient(160deg, #3B4FC4, #5DCAA5); border-radius: 10px; height: 120px; overflow: hidden; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
+  .phone-bell { font-size: 1.8rem; animation: bellRing 2s ease-in-out infinite; }
+  .phone-line { width: 50px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 10px; }
+  .phone-line.short { width: 35px; }
+
+  @keyframes floatPhone {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes bellRing {
+    0%, 100% { transform: rotate(0deg); }
+    10% { transform: rotate(-15deg); }
+    20% { transform: rotate(15deg); }
+    30% { transform: rotate(-10deg); }
+    40% { transform: rotate(10deg); }
+    50% { transform: rotate(0deg); }
+  }
+
+  /* Features list */
+  .features { display: flex; flex-direction: column; gap: 0.75rem; }
+  .feature-item {
+    display: flex; align-items: center; gap: 0.75rem;
+    opacity: 0; transform: translateX(16px);
+  }
+  .feature-item:nth-child(1) { animation: fadeLeft 0.5s 0.6s forwards; }
+  .feature-item:nth-child(2) { animation: fadeLeft 0.5s 0.72s forwards; }
+  .feature-item:nth-child(3) { animation: fadeLeft 0.5s 0.84s forwards; }
+  .feature-item:nth-child(4) { animation: fadeLeft 0.5s 0.96s forwards; }
+  .feature-item:nth-child(5) { animation: fadeLeft 0.5s 1.08s forwards; }
+
+  .feature-check {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--green); display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .feature-check svg { width: 12px; height: 12px; }
+  .feature-text { font-size: 0.86rem; font-weight: 500; color: var(--text); }
+
+  /* Floating stat pill */
+  .stat-pill {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 100px; padding: 0.45rem 1rem;
+    font-size: 0.78rem; font-weight: 600; color: var(--text);
+    box-shadow: 0 4px 16px rgba(59,79,196,0.1);
+    margin-bottom: 1.5rem;
+    opacity: 0; animation: fadeUp 0.5s 0.45s forwards;
+  }
+  .stat-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(1.3); } }
+
+  /* Success overlay */
+  .success-overlay {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(26,26,46,0.55); backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center;
+  }
+  .success-overlay.show { display: flex; }
+  .success-box {
+    background: var(--surface); border-radius: 20px; padding: 2.5rem;
+    text-align: center; max-width: 380px; width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  .success-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+  .success-box h2 { font-family: 'DM Serif Display', serif; font-size: 1.6rem; margin-bottom: 0.5rem; }
+  .success-box h2 em { font-style: italic; color: var(--green); }
+  .success-box p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem; }
+  .btn-go { padding: 0.7rem 2rem; border-radius: 10px; border: none; background: var(--primary); color: #fff; font-family: 'Sora', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+  .btn-go:hover { background: var(--primary-light); }
+
+  @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeLeft { to { opacity:1; transform:translateX(0); } }
+  @keyframes popIn { from { opacity:0; transform:scale(0.8); } to { opacity:1; transform:scale(1); } }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+  .shake { animation: shake 0.4s ease; }
+
+  @media (max-width: 860px) {
+    .page-inner { grid-template-columns: 1fr; max-width: 520px; }
+    .showcase { order: -1; }
+    .devices { height: 180px; }
+    .laptop { width: 260px; }
+    .laptop-screen-inner { height: 120px; }
+    .phone { width: 64px; right: 10px; }
+    .phone-screen { height: 90px; }
+  }
+  @media (max-width: 480px) {
+    .form-row { grid-template-columns: 1fr; }
+    .form-card { padding: 1.8rem 1.4rem 1.5rem; }
+  }
+
+  
+
+/* ── Footer base ── */
+.minerva-footer {
+  position: relative;
+  margin-top: 3rem;
+  font-family: 'Sora', sans-serif;
+}
+ 
+/* Vague SVG de transition */
+.footer-wave {
+  display: block;
+  line-height: 0;
+  overflow: hidden;
+}
+.footer-wave svg {
+  display: block;
+  width: 100%;
+  height: 60px;
+}
+ 
+/* Corps du footer */
+.footer-body {
+  background: #1A1A2E;
+  color: rgba(255,255,255,0.75);
+}
+ 
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.2fr 1.4fr;
+  gap: 2.5rem;
+}
+ 
+/* Brand column */
+.footer-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  border-bottom: 2.5px solid #3B4FC4;
+  display: inline-block;
+  padding-bottom: 2px;
+  margin-bottom: 0.85rem;
+}
+ 
+.footer-tagline {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+}
+ 
+/* Social icons */
+.footer-socials {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.4rem;
+}
+.fsocial {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  transition: all 0.22s;
+}
+.fsocial:hover {
+  background: #3B4FC4;
+  border-color: #3B4FC4;
+  color: #fff;
+  transform: translateY(-2px);
+}
+ 
+/* Newsletter */
+.fnl-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 0.5rem;
+}
+.fnl-wrap {
+  display: flex;
+  gap: 0;
+}
+.fnl-input {
+  flex: 1;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.8rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.fnl-input::placeholder { color: rgba(255,255,255,0.3); }
+.fnl-input:focus { border-color: #3B4FC4; }
+.fnl-btn {
+  padding: 0.55rem 1rem;
+  border-radius: 0 8px 8px 0;
+  border: none;
+  background: #3B4FC4;
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.fnl-btn:hover { background: #6B7FE3; }
+ 
+/* Column titles */
+.footer-col-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+ 
+/* Links */
+.footer-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.footer-links a {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.58);
+  text-decoration: none;
+  transition: color 0.2s, padding-left 0.2s;
+  display: inline-block;
+}
+.footer-links a:hover {
+  color: #ffffff;
+  padding-left: 4px;
+}
+ 
+/* Contact block */
+.footer-contact {
+  margin-top: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.fcontact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.76rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.55;
+}
+.fcontact-icon { flex-shrink: 0; font-size: 0.9rem; margin-top: 1px; }
+ 
+/* Bottom bar */
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.07);
+  background: rgba(0,0,0,0.25);
+}
+.footer-bottom-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.footer-copy {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.65;
+  max-width: 680px;
+}
+.footer-copy strong { color: rgba(255,255,255,0.6); }
+ 
+/* Badges */
+.footer-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.fbadge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 0.25rem 0.7rem;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+ 
+/* ── Responsive ── */
+@media (max-width: 1000px) {
+  .footer-inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .footer-brand { grid-column: 1 / -1; }
+}
+@media (max-width: 580px) {
+  .footer-inner { grid-template-columns: 1fr; padding: 2rem 1.5rem 1.5rem; }
+  .footer-bottom-inner { flex-direction: column; gap: 0.85rem; }
+  .footer-badges { justify-content: flex-start; }
+}
+</style>
+<link rel="stylesheet" href="minerva-shared.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#3B4FC4">
+<meta name="description" content="Minerva — veille et appels d'offres privés et publics au Burkina Faso et en Afrique de l'Ouest.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Minerva">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<script defer src="pwa-register.js"></script>
+</head>
+<body>
+
+<div class="cursor-glow" id="glow"></div>
+<div class="bg-stripes"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="minerva.html" class="logo">Minerva</a>
+    <ul class="nav-links">
+      <li><a href="minerva.html">Accueil</a></li>
+      <li><a href="minerva-appels.html">Appels d'offres</a></li>
+      <li><a href="minerva-services.html">Services</a></li>
+      <li><a href="minerva-publier.html">Publier</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="minerva-connexion.html" class="btn-outline">Connexion</a>
+      <a href="minerva-inscription.html" class="btn-nav-primary">S'inscrire</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+  <div class="page-inner">
+
+    <!-- ── LEFT: FORM ── -->
+    <div class="form-card">
+      <h1 class="form-title">Créer mon compte <em>Minerva</em></h1>
+      <p class="form-sub">Rejoignez +12 000 entreprises déjà inscrites</p>
+
+      <!-- Social -->
+      <div class="social-btns">
+        <button class="social-btn google" onclick="socialSignup('Google')">
+          <span class="icon">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          </span>
+          Connexion avec Google
+        </button>
+        <button class="social-btn linkedin" onclick="socialSignup('LinkedIn')">
+          <span class="icon">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </span>
+          Connexion avec LinkedIn
+        </button>
+        <button class="social-btn facebook" onclick="socialSignup('Facebook')">
+          <span class="icon">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </span>
+          Continuer avec Facebook
+        </button>
+      </div>
+
+      <!-- Divider -->
+      <div class="divider">
+        <hr><span>OU<br>Créer un compte avec votre adresse email</span><hr>
+      </div>
+
+      <!-- Form -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nom <span>*</span></label>
+          <div class="input-wrap"><input type="text" id="nom" placeholder="Ex: Kaboré" /></div>
+          <div class="err-msg" id="nomErr">Nom requis.</div>
+        </div>
+        <div class="form-group">
+          <label>Prénom <span>*</span></label>
+          <div class="input-wrap"><input type="text" id="prenom" placeholder="Ex: Issa" /></div>
+          <div class="err-msg" id="prenomErr">Prénom requis.</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>E-mail <span>*</span></label>
+        <div class="input-wrap"><input type="email" id="email" placeholder="votre@email.com" oninput="validateEmail()" /></div>
+        <div class="err-msg" id="emailErr">Adresse e-mail invalide.</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Mot de passe <span>*</span></label>
+          <div class="input-wrap">
+            <input type="password" id="password" placeholder="Min. 8 caractères" oninput="checkStrength()" />
+            <button class="pw-toggle" type="button" onclick="togglePw('password','eye1')">
+              <svg id="eye1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="pw-strength" id="pwStrength">
+            <div class="pw-bar" id="bar1"></div>
+            <div class="pw-bar" id="bar2"></div>
+            <div class="pw-bar" id="bar3"></div>
+            <div class="pw-bar" id="bar4"></div>
+          </div>
+          <div class="pw-label" id="pwLabel"></div>
+          <div class="err-msg" id="pwErr">Mot de passe trop court (min. 8 car.).</div>
+        </div>
+        <div class="form-group">
+          <label>Confirmer le mot de passe <span>*</span></label>
+          <div class="input-wrap">
+            <input type="password" id="confirm" placeholder="Répétez le mot de passe" oninput="checkConfirm()" />
+            <button class="pw-toggle" type="button" onclick="togglePw('confirm','eye2')">
+              <svg id="eye2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="err-msg" id="confirmErr">Les mots de passe ne correspondent pas.</div>
+        </div>
+      </div>
+
+      <!-- CGU -->
+      <div class="cgu-row">
+        <input type="checkbox" id="cgu" onchange="toggleSubmit()" />
+        <label for="cgu">J'accepte les <a href="#">Conditions Générales d'Utilisation et de Vente</a> de Minerva Alert</label>
+      </div>
+
+      <button class="btn-submit" id="submitBtn" disabled onclick="handleSubmit()">Valider mon inscription</button>
+
+      <p class="login-link">Déjà inscrit ? <a href="minerva-connexion.html">Connectez-vous ici</a></p>
+    </div>
+
+    <!-- ── RIGHT: SHOWCASE ── -->
+    <div class="showcase">
+
+      <div class="stat-pill">
+        <div class="dot"></div>
+        +350 000 appels d'offres disponibles par mois
+      </div>
+
+      <!-- Device mockup -->
+      <div class="devices">
+        <!-- Laptop -->
+        <div class="laptop">
+          <div class="laptop-screen">
+            <div class="laptop-screen-inner">
+              <div class="screen-nav">
+                <div class="screen-dot"></div>
+                <div class="screen-dot"></div>
+                <div class="screen-dot"></div>
+                <div class="screen-bar"></div>
+              </div>
+              <div class="screen-body">
+                <div class="screen-card"></div>
+                <div class="screen-card"></div>
+                <div class="screen-map"></div>
+              </div>
+            </div>
+          </div>
+          <div class="laptop-base"></div>
+          <div class="laptop-foot"></div>
+        </div>
+
+        <!-- Phone -->
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-bell">🔔</div>
+            <div class="phone-line"></div>
+            <div class="phone-line short"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="features">
+        <div class="feature-item">
+          <div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="feature-text">+ de 350 000 nouveaux appels d'offres par mois</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="feature-text">Appels d'offres publics et privés — 10 secteurs</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="feature-text">Local, national, international</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="feature-text">Archives et résultats des marchés</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="feature-text">Recherches sauvegardées et alertes programmées</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box">
+    <div class="success-icon">🎉</div>
+    <h2>Bienvenue sur <em>Minerva !</em></h2>
+    <p>Votre compte a été créé avec succès. Vous allez recevoir un e-mail de confirmation. Accédez dès maintenant aux appels d'offres.</p>
+    <button class="btn-go" onclick="window.location.href='minerva-appels.html'">Découvrir les appels d'offres →</button>
+  </div>
+</div>
+
+<script>
+  // Cursor glow
+  const glow = document.getElementById('glow');
+  document.addEventListener('mousemove', e => {
+    glow.style.transform = `translate(${e.clientX-170}px, ${e.clientY-170}px)`;
+  });
+
+  // Toggle password visibility
+  const eyeOpen  = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  const eyeClosed = '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  const visible = {};
+  function togglePw(id, eyeId) {
+    visible[id] = !visible[id];
+    document.getElementById(id).type = visible[id] ? 'text' : 'password';
+    document.getElementById(eyeId).innerHTML = visible[id] ? eyeClosed : eyeOpen;
+  }
+
+  // Password strength
+  function checkStrength() {
+    const val = document.getElementById('password').value;
+    const bars = [document.getElementById('bar1'), document.getElementById('bar2'), document.getElementById('bar3'), document.getElementById('bar4')];
+    const label = document.getElementById('pwLabel');
+    bars.forEach(b => b.style.background = 'var(--border)');
+
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const colors = ['#EF4444','#F59E0B','#3B82F6','#3AAF85'];
+    const labels = ['Très faible','Moyen','Fort','Très fort'];
+    for (let i = 0; i < score; i++) bars[i].style.background = colors[score-1];
+    label.textContent = val.length ? labels[score-1] || '' : '';
+    label.style.color = colors[score-1] || 'var(--text-muted)';
+    checkConfirm();
+  }
+
+  // Email validation
+  function validateEmail() {
+    const val = document.getElementById('email').value;
+    const re  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const inp = document.getElementById('email');
+    if (val.length > 3) { inp.classList.toggle('valid', re.test(val)); inp.classList.toggle('error', !re.test(val)); }
+  }
+
+  // Confirm password
+  function checkConfirm() {
+    const pw  = document.getElementById('password').value;
+    const con = document.getElementById('confirm').value;
+    const inp = document.getElementById('confirm');
+    if (con.length > 0) {
+      inp.classList.toggle('valid', pw === con);
+      inp.classList.toggle('error', pw !== con);
+    }
+  }
+
+  // Enable/disable submit
+  function toggleSubmit() {
+    document.getElementById('submitBtn').disabled = !document.getElementById('cgu').checked;
+  }
+
+  // Validation helpers
+  function setErr(id, errId, show) {
+    const inp = document.getElementById(id);
+    const err = document.getElementById(errId);
+    inp.classList.toggle('error', show);
+    err.classList.toggle('show', show);
+    return show;
+  }
+
+  // Submit
+  function handleSubmit() {
+    const nom    = document.getElementById('nom').value.trim();
+    const prenom = document.getElementById('prenom').value.trim();
+    const email  = document.getElementById('email').value.trim();
+    const pw     = document.getElementById('password').value;
+    const con    = document.getElementById('confirm').value;
+    const re     = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    let hasErr = false;
+    if (!nom)          hasErr = setErr('nom','nomErr',true)       || hasErr;
+    else               setErr('nom','nomErr',false);
+    if (!prenom)       hasErr = setErr('prenom','prenomErr',true)  || hasErr;
+    else               setErr('prenom','prenomErr',false);
+    if (!re.test(email)) hasErr = setErr('email','emailErr',true)  || hasErr;
+    else               setErr('email','emailErr',false);
+    if (pw.length < 8) hasErr = setErr('password','pwErr',true)   || hasErr;
+    else               setErr('password','pwErr',false);
+    if (pw !== con)    hasErr = setErr('confirm','confirmErr',true)|| hasErr;
+    else               setErr('confirm','confirmErr',false);
+
+    if (hasErr) {
+      document.querySelector('.form-card').classList.add('shake');
+      setTimeout(() => document.querySelector('.form-card').classList.remove('shake'), 450);
+      return;
+    }
+    document.getElementById('successOverlay').classList.add('show');
+    setTimeout(() => { window.location.href = 'minerva-dashboard.html'; }, 2000);
+  }
+
+  // Social signup shortcut
+  function socialSignup(provider) {
+    document.getElementById('successOverlay').classList.add('show');
+    setTimeout(() => { window.location.href = 'minerva-dashboard.html'; }, 2000);
+  }
+
+  // Enter key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('cgu').checked) handleSubmit();
+  });
+
+  
+  // Année dynamique dans le copyright
+  document.getElementById('footerYear').textContent = new Date().getFullYear();
+ 
+  // Abonnement newsletter (simulation)
+  function subscribeNL(btn) {
+    const input = btn.previousElementSibling;
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!re.test(input.value.trim())) {
+      input.style.borderColor = '#EF4444';
+      input.placeholder = 'E-mail invalide…';
+      setTimeout(() => { input.style.borderColor = ''; input.placeholder = 'votre@email.com'; }, 2000);
+      return;
+    }
+    btn.textContent = '✓ Abonné !';
+    btn.style.background = '#3AAF85';
+    btn.disabled = true;
+    input.value = '';
+    input.placeholder = 'Merci pour votre inscription !';
+  }
+</script>
+<!-- ============================================================
+     MINERVA ALERT — FOOTER UNIVERSEL
+     À coller juste avant </body> sur chaque page du site
+     ============================================================ -->
+ 
+<footer class="minerva-footer">
+ 
+  <!-- Vague décorative -->
+  <div class="footer-wave">
+    <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,40 C240,0 480,60 720,30 C960,0 1200,50 1440,20 L1440,60 L0,60 Z" fill="#1A1A2E"/>
+    </svg>
+  </div>
+ 
+  <div class="footer-body">
+    <div class="footer-inner">
+ 
+      <!-- COL 1 : Brand -->
+      <div class="footer-col footer-brand">
+        <div class="footer-logo">Minerva</div>
+        <p class="footer-tagline">La plateforme N°1 des appels d'offres<br>privés et publics au Burkina Faso.</p>
+        <div class="footer-socials">
+          <a href="#" class="fsocial" title="LinkedIn" aria-label="LinkedIn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <a href="#" class="fsocial" title="Facebook" aria-label="Facebook">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+          <a href="#" class="fsocial" title="Twitter / X" aria-label="Twitter">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <a href="#" class="fsocial" title="WhatsApp" aria-label="WhatsApp">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </a>
+        </div>
+        <!-- Newsletter mini -->
+        <div class="footer-newsletter">
+          <p class="fnl-label">Alertes par e-mail</p>
+          <div class="fnl-wrap">
+            <input type="email" class="fnl-input" placeholder="votre@email.com" />
+            <button class="fnl-btn" onclick="subscribeNL(this)">S'abonner</button>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- COL 2 : Navigation -->
+      <div class="footer-col">
+        <div class="footer-col-title">Navigation</div>
+        <ul class="footer-links">
+          <li><a href="minerva.html">🏠 Accueil</a></li>
+          <li><a href="minerva-appels.html">📋 Appels d'offres</a></li>
+          <li><a href="minerva-services.html">⚡ Services</a></li>
+          <li><a href="minerva-publier.html">📢 Publier une offre</a></li>
+          <li><a href="minerva-inscription.html">✍️ S'inscrire</a></li>
+          <li><a href="minerva-connexion.html">🔐 Se connecter</a></li>
+        </ul>
+      </div>
+ 
+      <!-- COL 3 : Secteurs -->
+      <div class="footer-col">
+        <div class="footer-col-title">Secteurs phares</div>
+        <ul class="footer-links">
+          <li><a href="minerva-appels.html">🏗️ BTP & Génie civil</a></li>
+          <li><a href="minerva-appels.html">💻 Informatique & Tech</a></li>
+          <li><a href="minerva-appels.html">🏥 Santé & Pharmacie</a></li>
+          <li><a href="minerva-appels.html">📚 Éducation & Formation</a></li>
+          <li><a href="minerva-appels.html">🌾 Agriculture & Élevage</a></li>
+          <li><a href="minerva-appels.html">⚡ Énergie & Solaire</a></li>
+          <li><a href="minerva-appels.html">💧 Eau & Assainissement</a></li>
+          <li><a href="minerva-appels.html">⛏️ Mines & Extraction</a></li>
+        </ul>
+      </div>
+ 
+      <!-- COL 4 : Informations -->
+      <div class="footer-col">
+        <div class="footer-col-title">Informations</div>
+        <ul class="footer-links">
+          <li><a href="#">À propos de Minerva</a></li>
+          <li><a href="#">Conditions Générales d'Utilisation</a></li>
+          <li><a href="#">Politique de confidentialité</a></li>
+          <li><a href="#">Mentions légales</a></li>
+          <li><a href="#">Nous contacter</a></li>
+          <li><a href="#">FAQ</a></li>
+        </ul>
+        <!-- Contact block -->
+        <div class="footer-contact">
+          <div class="fcontact-item">
+            <span class="fcontact-icon">📍</span>
+            <span>Ouagadougou, Burkina Faso<br>Secteur 15 — Zone commerciale</span>
+          </div>
+          <div class="fcontact-item">
+            <span class="fcontact-icon">📧</span>
+            <span>contact@minerva-alert.bf</span>
+          </div>
+          <div class="fcontact-item">
+            <span class="fcontact-icon">📞</span>
+            <span>+226 25 XX XX XX</span>
+          </div>
+        </div>
+      </div>
+ 
+    </div><!-- /footer-inner -->
+ 
+    <!-- Bottom bar -->
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <p class="footer-copy">
+          &copy; <span id="footerYear"></span> <strong>MINERVA SASU</strong> — Tous droits réservés.
+          Ce site et son contenu sont la propriété exclusive de la société
+          <strong>MINERVA SASU</strong>, enregistrée au Burkina Faso.
+          Toute reproduction, diffusion ou exploitation, même partielle, sans autorisation écrite préalable est strictement interdite.
+        </p>
+        <div class="footer-badges">
+          <span class="fbadge">🇧🇫 Made in Burkina</span>
+          <span class="fbadge">🔒 Site sécurisé</span>
+          <span class="fbadge">✅ Données protégées</span>
+        </div>
+      </div>
+    </div>
+ 
+  </div><!-- /footer-body -->
+</footer>
+</body>
+</html>

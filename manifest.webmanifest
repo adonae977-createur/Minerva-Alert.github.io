@@ -1,0 +1,98 @@
+{
+  "name": "Minerva — Appels d'offres",
+  "short_name": "Minerva",
+  "description": "Veille et appels d'offres privés et publics au Burkina Faso et en Afrique de l'Ouest.",
+  "start_url": "./minerva.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F7F2EE",
+  "theme_color": "#3B4FC4",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Appels d'offres",
+      "short_name": "Appels",
+      "description": "Parcourir les marchés publics et privés",
+      "url": "./minerva-appels.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Publier une offre",
+      "short_name": "Publier",
+      "description": "Déposer un appel d'offres",
+      "url": "./minerva-publier.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Connexion",
+      "short_name": "Connexion",
+      "description": "Accéder à votre compte",
+      "url": "./minerva-connexion.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Services",
+      "short_name": "Services",
+      "description": "Découvrir les offres Minerva",
+      "url": "./minerva-services.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Tableau de bord",
+      "short_name": "Dashboard",
+      "description": "Accéder à votre espace Minerva",
+      "url": "./minerva-dashboard.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}

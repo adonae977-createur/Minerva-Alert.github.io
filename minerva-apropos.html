@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minerva — À propos de nous</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary: #3B4FC4;
+    --primary-light: #6B7FE3;
+    --primary-pale: #E8ECFB;
+    --accent: #F4A261;
+    --green: #3AAF85;
+    --bg: #F7F2EE;
+    --surface: #FFFFFF;
+    --text: #1A1A2E;
+    --text-muted: #6B7280;
+    --border: rgba(59,79,196,0.15);
+    --dark: #1A1A2E;
+    --stripe-pink: rgba(220,160,160,0.18);
+    --stripe-blue: rgba(130,160,230,0.18);
+  }
+
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+  /* ── Stripes ── */
+  .bg-stripes { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .bg-stripes::before, .bg-stripes::after { content: ''; position: absolute; top: 0; bottom: 0; width: 100%; }
+  .bg-stripes::before { background: repeating-linear-gradient(to right, transparent, transparent 60px, var(--stripe-pink) 60px, var(--stripe-pink) 80px); animation: shiftStripes 14s linear infinite; }
+  .bg-stripes::after  { background: repeating-linear-gradient(to right, transparent, transparent 90px, var(--stripe-blue) 90px, var(--stripe-blue) 100px); animation: shiftStripes 22s linear infinite reverse; opacity: .5; }
+  @keyframes shiftStripes { from { transform: translateX(0); } to { transform: translateX(100px); } }
+
+  .cursor-glow { position: fixed; width: 360px; height: 360px; border-radius: 50%; background: radial-gradient(circle, rgba(59,79,196,0.09) 0%, transparent 70%); pointer-events: none; z-index: 0; transform: translate(-50%,-50%); transition: transform .12s ease-out; }
+
+  /* ── NAV ── */
+  nav { position: sticky; top: 0; z-index: 100; background: rgba(247,242,238,0.85); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+  .nav-inner { display: flex; align-items: center; gap: 2.5rem; height: 64px; max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+  .logo { font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: var(--primary); text-decoration: none; letter-spacing: -0.02em; border-bottom: 2.5px solid var(--primary); padding-bottom: 1px; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { font-size: .88rem; font-weight: 500; color: var(--text); text-decoration: none; transition: color .2s; }
+  .nav-links a:hover { color: var(--primary); }
+  .nav-links a.active { color: var(--primary); font-weight: 700; border-bottom: 2px solid var(--primary); padding-bottom: 2px; }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: .75rem; }
+  .btn-outline { padding: .45rem 1.1rem; border: 1.5px solid var(--primary); border-radius: 8px; font-size: .83rem; font-weight: 500; color: var(--primary); background: transparent; cursor: pointer; text-decoration: none; transition: background .2s; }
+  .btn-outline:hover { background: var(--primary-pale); }
+  .btn-nav-primary { padding: .48rem 1.3rem; border: none; border-radius: 8px; font-size: .83rem; font-weight: 600; color: #fff; background: var(--primary); cursor: pointer; text-decoration: none; box-shadow: 0 2px 12px rgba(59,79,196,.25); transition: background .2s, transform .15s; }
+  .btn-nav-primary:hover { background: var(--primary-light); transform: translateY(-1px); }
+
+  /* ── WRAPPER ── */
+  .wrapper { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+
+  /* ══════════════════════════════════════
+     HERO SECTION
+  ══════════════════════════════════════ */
+  .hero {
+    min-height: 88vh;
+    display: flex; align-items: center;
+    padding: 5rem 0 4rem;
+    position: relative; z-index: 1;
+  }
+  .hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+
+  .hero-left { opacity: 0; transform: translateY(20px); animation: fadeUp .8s .1s forwards; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: .6rem;
+    background: var(--primary-pale); color: var(--primary);
+    font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    padding: .35rem 1rem; border-radius: 100px; margin-bottom: 1.5rem;
+  }
+  .hero-eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); animation: pulse 1.5s ease-in-out infinite; }
+  .hero-h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.5rem, 6vw, 4.2rem);
+    line-height: 1.08; letter-spacing: -0.03em; margin-bottom: 1.25rem;
+    color: var(--text);
+  }
+  .hero-h1 em { font-style: italic; color: var(--primary); }
+  .hero-h1 .line-accent {
+    position: relative; display: inline-block;
+  }
+  .hero-h1 .line-accent::after {
+    content: '';
+    position: absolute; left: 0; bottom: -4px;
+    width: 100%; height: 3px;
+    background: linear-gradient(to right, var(--accent), var(--primary));
+    border-radius: 10px;
+    animation: growLine .8s .9s ease both;
+    transform-origin: left;
+  }
+  @keyframes growLine { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  .hero-desc { font-size: 1rem; color: var(--text-muted); line-height: 1.75; margin-bottom: 2rem; max-width: 480px; }
+  .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .cta-primary { padding: .78rem 1.8rem; border-radius: 10px; border: none; background: var(--primary); color: #fff; font-family: 'Sora', sans-serif; font-size: .9rem; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: .5rem; box-shadow: 0 4px 18px rgba(59,79,196,.3); transition: all .2s; }
+  .cta-primary:hover { background: var(--primary-light); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(59,79,196,.35); }
+  .cta-secondary { padding: .78rem 1.8rem; border-radius: 10px; border: 1.5px solid var(--border); background: transparent; color: var(--text); font-family: 'Sora', sans-serif; font-size: .9rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: .5rem; transition: all .2s; }
+  .cta-secondary:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-pale); }
+
+  /* Hero right — animated graphic */
+  .hero-right { opacity: 0; transform: translateX(20px); animation: fadeLeft .8s .35s forwards; position: relative; }
+  .hero-graphic {
+    background: linear-gradient(135deg, #3B4FC4 0%, #6B7FE3 50%, #A5B4FC 100%);
+    border-radius: 24px; padding: 2.5rem;
+    box-shadow: 0 24px 60px rgba(59,79,196,.25);
+    position: relative; overflow: hidden;
+  }
+  .hg-circles { position: absolute; inset: 0; pointer-events: none; }
+  .hg-circles span { position: absolute; border-radius: 50%; background: rgba(255,255,255,.07); }
+  .hg-circles span:nth-child(1) { width: 200px; height: 200px; top: -60px; right: -40px; }
+  .hg-circles span:nth-child(2) { width: 120px; height: 120px; bottom: -30px; left: -20px; }
+  .hg-circles span:nth-child(3) { width: 60px;  height: 60px;  top: 40px; left: 50px; }
+
+  .hg-label { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.6); margin-bottom: 1rem; }
+  .hg-stat-row { display: flex; gap: 1rem; margin-bottom: 1.25rem; }
+  .hg-stat { background: rgba(255,255,255,.12); border-radius: 12px; padding: .85rem 1rem; flex: 1; text-align: center; }
+  .hg-stat .val { font-family: 'DM Serif Display', serif; font-size: 1.7rem; color: #fff; display: block; }
+  .hg-stat .lbl { font-size: .65rem; color: rgba(255,255,255,.65); margin-top: 2px; }
+  .hg-bar-group { display: flex; flex-direction: column; gap: .5rem; }
+  .hg-bar-item { display: flex; align-items: center; gap: .65rem; }
+  .hg-bar-item .sec { font-size: .72rem; color: rgba(255,255,255,.7); width: 90px; flex-shrink: 0; }
+  .hg-bar-track { flex: 1; height: 6px; background: rgba(255,255,255,.15); border-radius: 10px; overflow: hidden; }
+  .hg-bar-fill { height: 100%; border-radius: 10px; background: rgba(255,255,255,.7); animation: growBar 1.2s ease both; transform-origin: left; }
+  .hg-bar-item .pct { font-size: .68rem; color: rgba(255,255,255,.6); width: 30px; text-align: right; flex-shrink: 0; }
+  @keyframes growBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  /* Floating pill on graphic */
+  .hg-pill {
+    position: absolute; bottom: -16px; right: 24px;
+    background: var(--surface); border-radius: 100px;
+    padding: .55rem 1rem; display: flex; align-items: center; gap: .5rem;
+    font-size: .76rem; font-weight: 600; color: var(--text);
+    box-shadow: 0 8px 24px rgba(0,0,0,.15);
+    animation: floatPill 3s ease-in-out infinite;
+  }
+  .hg-pill .green-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes floatPill { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+  /* ══════════════════════════════════════
+     MISSION SECTION
+  ══════════════════════════════════════ */
+  .section { padding: 5rem 0; position: relative; z-index: 1; }
+  .section-tag { display: inline-block; background: var(--primary-pale); color: var(--primary); font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: .28rem .85rem; border-radius: 100px; margin-bottom: .85rem; }
+  .section-h2 { font-family: 'DM Serif Display', serif; font-size: clamp(1.7rem, 3.5vw, 2.6rem); letter-spacing: -0.03em; margin-bottom: .75rem; }
+  .section-h2 em { font-style: italic; color: var(--primary); }
+  .section-lead { font-size: .95rem; color: var(--text-muted); line-height: 1.75; max-width: 560px; }
+
+  /* Mission grid */
+  .mission-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+  .mission-visual { position: relative; }
+  .mission-card {
+    background: var(--surface); border-radius: 20px; padding: 2rem;
+    box-shadow: 0 8px 32px rgba(59,79,196,.08); border: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .mission-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(to right, var(--primary), var(--accent));
+  }
+  .mission-values { display: flex; flex-direction: column; gap: .85rem; margin-top: 1.5rem; }
+  .mv-item { display: flex; align-items: flex-start; gap: .85rem; padding: .85rem; background: var(--bg); border-radius: 12px; transition: background .2s; }
+  .mv-item:hover { background: var(--primary-pale); }
+  .mv-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .mv-text h4 { font-size: .85rem; font-weight: 700; margin-bottom: .2rem; }
+  .mv-text p  { font-size: .77rem; color: var(--text-muted); line-height: 1.55; }
+
+  /* Floating number card */
+  .float-card {
+    position: absolute; top: -20px; right: -20px;
+    background: var(--primary); color: #fff; border-radius: 16px;
+    padding: 1rem 1.25rem; text-align: center;
+    box-shadow: 0 8px 24px rgba(59,79,196,.35);
+    animation: floatPill 4s ease-in-out infinite;
+  }
+  .float-card .fval { font-family: 'DM Serif Display', serif; font-size: 2rem; display: block; }
+  .float-card .flbl { font-size: .65rem; opacity: .75; }
+
+  /* ══════════════════════════════════════
+     STATS BAND
+  ══════════════════════════════════════ */
+  .stats-band {
+    background: var(--dark); position: relative; overflow: hidden; z-index: 1;
+  }
+  .stats-wave-top { display: block; line-height: 0; }
+  .stats-wave-top svg, .stats-wave-bot svg { display: block; width: 100%; height: 50px; }
+  .stats-wave-bot { display: block; line-height: 0; }
+  .stats-inner { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+  .stat-block { text-align: center; }
+  .stat-block .num { font-family: 'DM Serif Display', serif; font-size: 3rem; color: #fff; display: block; line-height: 1; }
+  .stat-block .accent { color: var(--accent); }
+  .stat-block .slbl { font-size: .8rem; color: rgba(255,255,255,.5); margin-top: .5rem; }
+  .stat-block .sdesc { font-size: .72rem; color: rgba(255,255,255,.3); margin-top: .2rem; }
+
+  /* ══════════════════════════════════════
+     TEAM SECTION
+  ══════════════════════════════════════ */
+  .team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2.5rem; }
+  .team-card {
+    background: var(--surface); border-radius: 18px; overflow: hidden;
+    border: 1px solid var(--border); transition: transform .3s, box-shadow .3s;
+  }
+  .team-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(59,79,196,.12); }
+  .team-avatar {
+    height: 160px; display: flex; align-items: center; justify-content: center;
+    font-size: 4rem; position: relative;
+  }
+  .team-card:nth-child(1) .team-avatar { background: linear-gradient(135deg, #C9D6F5, #8FA6E8); }
+  .team-card:nth-child(2) .team-avatar { background: linear-gradient(135deg, #FECACA, #F4A261); }
+  .team-card:nth-child(3) .team-avatar { background: linear-gradient(135deg, #C6F6D5, #68D391); }
+  .team-card:nth-child(4) .team-avatar { background: linear-gradient(135deg, #E9D8FD, #B794F4); }
+  .team-card:nth-child(5) .team-avatar { background: linear-gradient(135deg, #FEFCBF, #F6E05E); }
+  .team-card:nth-child(6) .team-avatar { background: linear-gradient(135deg, #BEE3F8, #63B3ED); }
+  .team-body { padding: 1.1rem 1.2rem 1.25rem; }
+  .team-name { font-size: .92rem; font-weight: 700; margin-bottom: .18rem; }
+  .team-role { font-size: .74rem; color: var(--primary); font-weight: 600; margin-bottom: .5rem; }
+  .team-bio  { font-size: .76rem; color: var(--text-muted); line-height: 1.55; }
+
+  /* ══════════════════════════════════════
+     TIMELINE
+  ══════════════════════════════════════ */
+  .timeline { position: relative; padding-left: 2.5rem; }
+  .timeline::before { content: ''; position: absolute; left: 10px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(to bottom, var(--primary), var(--accent)); border-radius: 10px; }
+  .tl-item { position: relative; margin-bottom: 2.25rem; opacity: 0; transform: translateX(-16px); }
+  .tl-item.visible { animation: fadeLeft .6s forwards; }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-dot { position: absolute; left: -2.5rem; top: 4px; width: 20px; height: 20px; border-radius: 50%; background: var(--primary); border: 3px solid var(--bg); box-shadow: 0 0 0 2px var(--primary); display: flex; align-items: center; justify-content: center; font-size: .65rem; color: #fff; font-weight: 700; }
+  .tl-year { font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); margin-bottom: .25rem; }
+  .tl-title { font-size: .92rem; font-weight: 700; margin-bottom: .3rem; }
+  .tl-text { font-size: .79rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* ══════════════════════════════════════
+     PARTENAIRES / VALEURS
+  ══════════════════════════════════════ */
+  .valeurs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 2rem; }
+  .valeur-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 1.5rem 1.3rem; text-align: center;
+    transition: transform .25s, box-shadow .25s;
+    opacity: 0; transform: translateY(16px);
+  }
+  .valeur-card.visible { animation: fadeUp .5s forwards; }
+  .valeur-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(59,79,196,.1); }
+  .valeur-icon { font-size: 2.2rem; margin-bottom: .75rem; }
+  .valeur-title { font-size: .9rem; font-weight: 700; margin-bottom: .4rem; }
+  .valeur-desc { font-size: .78rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* ══════════════════════════════════════
+     CTA SECTION
+  ══════════════════════════════════════ */
+  .cta-section {
+    background: linear-gradient(135deg, #3B4FC4 0%, #1A1A2E 100%);
+    border-radius: 24px; padding: 4rem 3rem; text-align: center;
+    position: relative; overflow: hidden; margin-bottom: 5rem;
+  }
+  .cta-section::before { content: ''; position: absolute; top: -80px; right: -80px; width: 260px; height: 260px; border-radius: 50%; background: rgba(255,255,255,.05); }
+  .cta-section::after  { content: ''; position: absolute; bottom: -60px; left: -40px; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,.04); }
+  .cta-section h2 { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: #fff; letter-spacing: -0.03em; margin-bottom: .75rem; }
+  .cta-section h2 em { font-style: italic; color: var(--accent); }
+  .cta-section p { font-size: .95rem; color: rgba(255,255,255,.65); max-width: 500px; margin: 0 auto 2rem; line-height: 1.7; }
+  .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+  .cta-btn-w { padding: .78rem 2rem; border-radius: 10px; border: none; background: #fff; color: var(--primary); font-family: 'Sora', sans-serif; font-size: .9rem; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: .5rem; transition: all .2s; }
+  .cta-btn-w:hover { background: var(--accent); color: #fff; transform: translateY(-2px); }
+  .cta-btn-o { padding: .78rem 2rem; border-radius: 10px; border: 1.5px solid rgba(255,255,255,.3); background: transparent; color: #fff; font-family: 'Sora', sans-serif; font-size: .9rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: .5rem; transition: all .2s; }
+  .cta-btn-o:hover { border-color: #fff; background: rgba(255,255,255,.08); }
+
+  /* ══════════════════════════════════════
+     FOOTER
+  ══════════════════════════════════════ */
+  .minerva-footer { position: relative; margin-top: 0; font-family: 'Sora', sans-serif; }
+  .footer-wave { display: block; line-height: 0; overflow: hidden; }
+  .footer-wave svg { display: block; width: 100%; height: 60px; }
+  .footer-body { background: #1A1A2E; color: rgba(255,255,255,.75); }
+  .footer-inner { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem 2rem; display: grid; grid-template-columns: 2fr 1fr 1.2fr 1.4fr; gap: 2.5rem; }
+  .footer-logo { font-family: 'DM Serif Display', serif; font-size: 2rem; color: #fff; letter-spacing: -0.03em; border-bottom: 2.5px solid #3B4FC4; display: inline-block; padding-bottom: 2px; margin-bottom: .85rem; }
+  .footer-tagline { font-size: .82rem; color: rgba(255,255,255,.55); line-height: 1.7; margin-bottom: 1.25rem; }
+  .footer-socials { display: flex; gap: .6rem; margin-bottom: 1.4rem; }
+  .fsocial { width: 34px; height: 34px; border-radius: 8px; border: 1px solid rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.6); text-decoration: none; transition: all .22s; }
+  .fsocial:hover { background: #3B4FC4; border-color: #3B4FC4; color: #fff; transform: translateY(-2px); }
+  .fnl-label { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: .5rem; }
+  .fnl-wrap { display: flex; }
+  .fnl-input { flex: 1; padding: .55rem .85rem; border: 1px solid rgba(255,255,255,.12); border-right: none; border-radius: 8px 0 0 8px; background: rgba(255,255,255,.06); color: #fff; font-family: 'Sora', sans-serif; font-size: .8rem; outline: none; }
+  .fnl-input::placeholder { color: rgba(255,255,255,.3); }
+  .fnl-btn { padding: .55rem 1rem; border-radius: 0 8px 8px 0; border: none; background: #3B4FC4; color: #fff; font-family: 'Sora', sans-serif; font-size: .78rem; font-weight: 700; cursor: pointer; transition: background .2s; }
+  .fnl-btn:hover { background: #6B7FE3; }
+  .footer-col-title { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.35); margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 1px solid rgba(255,255,255,.07); }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: .55rem; }
+  .footer-links a { font-size: .8rem; color: rgba(255,255,255,.58); text-decoration: none; transition: color .2s, padding-left .2s; display: inline-block; }
+  .footer-links a:hover { color: #fff; padding-left: 4px; }
+  .footer-contact { margin-top: 1.2rem; display: flex; flex-direction: column; gap: .6rem; }
+  .fcontact-item { display: flex; align-items: flex-start; gap: .6rem; font-size: .76rem; color: rgba(255,255,255,.5); line-height: 1.55; }
+  .fcontact-icon { flex-shrink: 0; font-size: .9rem; margin-top: 1px; }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,.07); background: rgba(0,0,0,.25); }
+  .footer-bottom-inner { max-width: 1200px; margin: 0 auto; padding: 1.25rem 2rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
+  .footer-copy { font-size: .72rem; color: rgba(255,255,255,.35); line-height: 1.65; max-width: 680px; }
+  .footer-copy strong { color: rgba(255,255,255,.6); }
+  .footer-badges { display: flex; gap: .5rem; flex-wrap: wrap; flex-shrink: 0; }
+  .fbadge { font-size: .68rem; font-weight: 600; color: rgba(255,255,255,.45); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); padding: .25rem .7rem; border-radius: 100px; white-space: nowrap; }
+
+  /* ── Animations ── */
+  @keyframes fadeUp  { to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeLeft{ to { opacity: 1; transform: translateX(0); } }
+  @keyframes pulse   { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:.5; transform:scale(1.3); } }
+
+  /* Scroll-reveal utility */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-left { opacity: 0; transform: translateX(-24px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal-left.visible { opacity: 1; transform: translateX(0); }
+  .reveal-right { opacity: 0; transform: translateX(24px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+  /* Stagger delays */
+  .d1{transition-delay:.1s} .d2{transition-delay:.2s} .d3{transition-delay:.3s}
+  .d4{transition-delay:.4s} .d5{transition-delay:.5s} .d6{transition-delay:.6s}
+
+  @media(max-width:900px) {
+    .hero-inner     { grid-template-columns: 1fr; }
+    .hero-right     { display: none; }
+    .mission-grid   { grid-template-columns: 1fr; }
+    .stats-inner    { grid-template-columns: 1fr 1fr; }
+    .team-grid      { grid-template-columns: 1fr 1fr; }
+    .valeurs-grid   { grid-template-columns: 1fr 1fr; }
+    .footer-inner   { grid-template-columns: 1fr 1fr; }
+    .footer-brand   { grid-column: 1/-1; }
+  }
+  @media(max-width:580px) {
+    .stats-inner  { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .team-grid    { grid-template-columns: 1fr; }
+    .valeurs-grid { grid-template-columns: 1fr; }
+    .footer-inner { grid-template-columns: 1fr; padding: 2rem 1.5rem 1.5rem; }
+    .footer-bottom-inner { flex-direction: column; }
+    .cta-section  { padding: 2.5rem 1.5rem; }
+  }
+</style>
+<link rel="stylesheet" href="minerva-shared.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#3B4FC4">
+<meta name="description" content="Minerva — veille et appels d'offres privés et publics au Burkina Faso et en Afrique de l'Ouest.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Minerva">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<script defer src="pwa-register.js"></script>
+</head>
+<body>
+
+<div class="cursor-glow" id="glow"></div>
+<div class="bg-stripes"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="minerva-apropos.html" class="logo">Minerva</a>
+    <ul class="nav-links">
+      <li><a href="minerva.html">Accueil</a></li>
+      <li><a href="minerva-appels.html">Appels d'offres</a></li>
+      <li><a href="minerva-services.html">Services</a></li>
+      <li><a href="minerva-publier.html">Publier</a></li>
+      <li><a href="minerva-apropos.html" class="active">À propos</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="minerva-connexion.html" class="btn-outline">Connexion</a>
+      <a href="minerva-inscription.html" class="btn-nav-primary">S'inscrire</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow"><div class="dot"></div>À propos de Minerva Alert</div>
+      <h1 class="hero-h1">
+        La plateforme qui<br>
+        <em>connecte</em> les marchés<br>
+        <span class="line-accent">au Burkina Faso</span>
+      </h1>
+      <p class="hero-desc">Née d'un constat simple — l'information sur les appels d'offres est dispersée, opaque et difficile d'accès — Minerva Alert est devenue la référence pour les entreprises qui veulent saisir toutes les opportunités du marché burkinabè et de la sous-région.</p>
+      <div class="hero-ctas">
+        <a href="minerva-appels.html" class="cta-primary">📋 Explorer les offres</a>
+        <a href="minerva-inscription.html" class="cta-secondary">✍️ Créer un compte</a>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-graphic">
+        <div class="hg-circles"><span></span><span></span><span></span></div>
+        <div class="hg-label">Répartition par secteur · 2026</div>
+        <div class="hg-stat-row">
+          <div class="hg-stat"><span class="val">18k+</span><div class="lbl">AO publiés</div></div>
+          <div class="hg-stat"><span class="val">13</span><div class="lbl">Régions</div></div>
+          <div class="hg-stat"><span class="val">78%</span><div class="lbl">Taux réponse</div></div>
+        </div>
+        <div class="hg-bar-group">
+          <div class="hg-bar-item">
+            <span class="sec">🏗️ BTP</span>
+            <div class="hg-bar-track"><div class="hg-bar-fill" style="width:82%;animation-delay:.3s"></div></div>
+            <span class="pct">82%</span>
+          </div>
+          <div class="hg-bar-item">
+            <span class="sec">💻 Informatique</span>
+            <div class="hg-bar-track"><div class="hg-bar-fill" style="width:64%;animation-delay:.5s"></div></div>
+            <span class="pct">64%</span>
+          </div>
+          <div class="hg-bar-item">
+            <span class="sec">🏥 Santé</span>
+            <div class="hg-bar-track"><div class="hg-bar-fill" style="width:55%;animation-delay:.7s"></div></div>
+            <span class="pct">55%</span>
+          </div>
+          <div class="hg-bar-item">
+            <span class="sec">🌾 Agriculture</span>
+            <div class="hg-bar-track"><div class="hg-bar-fill" style="width:41%;animation-delay:.9s"></div></div>
+            <span class="pct">41%</span>
+          </div>
+          <div class="hg-bar-item">
+            <span class="sec">⚡ Énergie</span>
+            <div class="hg-bar-track"><div class="hg-bar-fill" style="width:33%;animation-delay:1.1s"></div></div>
+            <span class="pct">33%</span>
+          </div>
+        </div>
+        <div class="hg-pill"><div class="green-dot"></div>Mis à jour en temps réel</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STATS BAND ══ -->
+<div class="stats-band">
+  <div class="stats-wave-top">
+    <svg viewBox="0 0 1440 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,30 C360,0 720,50 1080,20 C1260,5 1380,35 1440,15 L1440,0 L0,0 Z" fill="#F7F2EE"/>
+    </svg>
+  </div>
+  <div class="stats-inner">
+    <div class="stat-block reveal d1">
+      <span class="num"><span class="accent" id="c1">0</span>k+</span>
+      <div class="slbl">Appels d'offres publiés</div>
+      <div class="sdesc">depuis notre lancement</div>
+    </div>
+    <div class="stat-block reveal d2">
+      <span class="num"><span class="accent" id="c2">0</span>+</span>
+      <div class="slbl">Entreprises inscrites</div>
+      <div class="sdesc">au Burkina et sous-région</div>
+    </div>
+    <div class="stat-block reveal d3">
+      <span class="num"><span class="accent" id="c3">0</span></span>
+      <div class="slbl">Secteurs d'activité</div>
+      <div class="sdesc">couverts par la plateforme</div>
+    </div>
+    <div class="stat-block reveal d4">
+      <span class="num"><span class="accent" id="c4">0</span>%</span>
+      <div class="slbl">Taux de satisfaction</div>
+      <div class="sdesc">de nos clients abonnés</div>
+    </div>
+  </div>
+  <div class="stats-wave-bot">
+    <svg viewBox="0 0 1440 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,20 C360,50 720,0 1080,30 C1260,45 1380,15 1440,35 L1440,50 L0,50 Z" fill="#F7F2EE"/>
+    </svg>
+  </div>
+</div>
+
+<!-- ══ MISSION ══ -->
+<section class="section">
+  <div class="wrapper">
+    <div class="mission-grid">
+      <div class="reveal-left">
+        <div class="section-tag">🎯 Notre mission</div>
+        <h2 class="section-h2">Rendre les marchés <em>accessibles</em> à tous</h2>
+        <p class="section-lead">Minerva Alert a pour mission de démocratiser l'accès à l'information sur les marchés publics et privés. Chaque entreprise, quelle que soit sa taille, mérite de connaître et de saisir les opportunités qui s'offrent à elle.</p>
+
+        <div class="mission-values">
+          <div class="mv-item">
+            <div class="mv-icon">🔍</div>
+            <div class="mv-text">
+              <h4>Transparence</h4>
+              <p>Nous centralisons toutes les informations sur les appels d'offres pour une visibilité complète et équitable du marché.</p>
+            </div>
+          </div>
+          <div class="mv-item">
+            <div class="mv-icon">⚡</div>
+            <div class="mv-text">
+              <h4>Réactivité</h4>
+              <p>Alertes en temps réel pour ne jamais manquer une opportunité. Votre veille marché, automatisée et personnalisée.</p>
+            </div>
+          </div>
+          <div class="mv-item">
+            <div class="mv-icon">🤝</div>
+            <div class="mv-text">
+              <h4>Confiance</h4>
+              <p>Chaque appel d'offres est vérifié avant publication. Nous garantissons la fiabilité et l'authenticité des informations.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mission-visual reveal-right">
+        <div class="float-card">
+          <span class="fval">N°1</span>
+          <div class="flbl">Au Burkina Faso</div>
+        </div>
+        <div class="mission-card">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:1.25rem;margin-bottom:.5rem;">Notre vision 2030</h3>
+          <p style="font-size:.82rem;color:var(--text-muted);line-height:1.7;margin-bottom:1.25rem;">Devenir la plateforme de référence des marchés en Afrique de l'Ouest, en connectant 100 000 entreprises à travers 15 pays de la sous-région CEDEAO.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+            <div style="background:var(--primary-pale);border-radius:10px;padding:.85rem;text-align:center;">
+              <div style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--primary);">15</div>
+              <div style="font-size:.68rem;color:var(--text-muted);margin-top:2px;">Pays CEDEAO</div>
+            </div>
+            <div style="background:#D1FAE5;border-radius:10px;padding:.85rem;text-align:center;">
+              <div style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--green);">100k</div>
+              <div style="font-size:.68rem;color:var(--text-muted);margin-top:2px;">Entreprises cibles</div>
+            </div>
+            <div style="background:#FEF3C7;border-radius:10px;padding:.85rem;text-align:center;">
+              <div style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:#D97706;">500k</div>
+              <div style="font-size:.68rem;color:var(--text-muted);margin-top:2px;">AO par an</div>
+            </div>
+            <div style="background:#FEE2E2;border-radius:10px;padding:.85rem;text-align:center;">
+              <div style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:#DC2626;">24/7</div>
+              <div style="font-size:.68rem;color:var(--text-muted);margin-top:2px;">Disponibilité</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ VALEURS ══ -->
+<section class="section" style="padding-top:0;">
+  <div class="wrapper">
+    <div class="reveal" style="text-align:center;margin-bottom:.5rem;">
+      <div class="section-tag">💎 Nos valeurs</div>
+      <h2 class="section-h2">Ce qui nous <em>distingue</em></h2>
+    </div>
+    <div class="valeurs-grid">
+      <div class="valeur-card reveal d1">
+        <div class="valeur-icon">🏛️</div>
+        <div class="valeur-title">Intégrité</div>
+        <div class="valeur-desc">Chaque information publiée est vérifiée. Nous ne compromettons jamais la qualité au profit de la quantité.</div>
+      </div>
+      <div class="valeur-card reveal d2">
+        <div class="valeur-icon">🌍</div>
+        <div class="valeur-title">Impact local</div>
+        <div class="valeur-desc">Nous croyons au développement économique du Burkina Faso par l'accès équitable à l'information.</div>
+      </div>
+      <div class="valeur-card reveal d3">
+        <div class="valeur-icon">🔬</div>
+        <div class="valeur-title">Innovation</div>
+        <div class="valeur-desc">Nous investissons continuellement dans la technologie pour offrir la meilleure expérience possible.</div>
+      </div>
+      <div class="valeur-card reveal d4">
+        <div class="valeur-icon">🛡️</div>
+        <div class="valeur-title">Sécurité</div>
+        <div class="valeur-desc">Vos données et vos transactions sont protégées par les standards les plus exigeants du secteur.</div>
+      </div>
+      <div class="valeur-card reveal d5">
+        <div class="valeur-icon">🤝</div>
+        <div class="valeur-title">Partenariat</div>
+        <div class="valeur-desc">Nous collaborons avec les acteurs publics, privés et institutionnels pour enrichir notre base de données.</div>
+      </div>
+      <div class="valeur-card reveal d6">
+        <div class="valeur-icon">📊</div>
+        <div class="valeur-title">Excellence</div>
+        <div class="valeur-desc">Nous mesurons notre succès au regard de la croissance de nos clients et de leur satisfaction.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TIMELINE ══ -->
+<section class="section" style="padding-top:1rem;">
+  <div class="wrapper">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;">
+      <div class="reveal-left">
+        <div class="section-tag">📅 Notre histoire</div>
+        <h2 class="section-h2">De l'idée à la <em>référence</em></h2>
+        <p class="section-lead" style="margin-bottom:2rem;">Retrace le chemin parcouru depuis la naissance du projet jusqu'à la plateforme que vous utilisez aujourd'hui.</p>
+        <div class="timeline">
+          <div class="tl-item reveal d1">
+            <div class="tl-dot">23</div>
+            <div class="tl-year">2023 — Genèse</div>
+            <div class="tl-title">Naissance du projet Minerva</div>
+            <div class="tl-text">Face à la dispersion de l'information sur les marchés publics au Burkina Faso, l'équipe fondatrice décide de créer une plateforme centralisée et accessible.</div>
+          </div>
+          <div class="tl-item reveal d2">
+            <div class="tl-dot">24</div>
+            <div class="tl-year">2024 — Lancement</div>
+            <div class="tl-title">Première version en ligne</div>
+            <div class="tl-text">Lancement de la version bêta avec 500 appels d'offres indexés et les premiers 200 utilisateurs inscrits. Accueil très positif de la communauté entrepreneuriale.</div>
+          </div>
+          <div class="tl-item reveal d3">
+            <div class="tl-dot">25</div>
+            <div class="tl-year">2025 — Croissance</div>
+            <div class="tl-title">Ouverture à 8 régions & appels privés</div>
+            <div class="tl-text">Extension à toutes les régions du Burkina, intégration des marchés privés, lancement du système d'alertes e-mail. Passage à 5 000 utilisateurs actifs.</div>
+          </div>
+          <div class="tl-item reveal d4">
+            <div class="tl-dot">26</div>
+            <div class="tl-year">2026 — Expansion</div>
+            <div class="tl-title">Minerva Alert — La plateforme de référence</div>
+            <div class="tl-text">Plus de 12 000 entreprises inscrites, intégration des marchés internationaux, lancement des services premium et de l'accompagnement aux soumissions.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEAM -->
+      <div class="reveal-right">
+        <div class="section-tag">👥 Notre équipe</div>
+        <h2 class="section-h2">Les visages de <em>Minerva</em></h2>
+        <div class="team-grid" style="grid-template-columns:1fr 1fr;margin-top:1.5rem;">
+          <div class="team-card reveal d1">
+            <div class="team-avatar">👨🏾‍💼</div>
+            <div class="team-body">
+              <div class="team-name">Seydou Kaboré</div>
+              <div class="team-role">CEO & Co-fondateur</div>
+              <div class="team-bio">Expert en marchés publics avec 12 ans d'expérience dans le secteur privé burkinabè.</div>
+            </div>
+          </div>
+          <div class="team-card reveal d2">
+            <div class="team-avatar">👩🏾‍💻</div>
+            <div class="team-body">
+              <div class="team-name">Aminata Traoré</div>
+              <div class="team-role">CTO & Co-fondatrice</div>
+              <div class="team-bio">Ingénieure logiciel, ancienne de l'École Polytechnique de Ouagadougou.</div>
+            </div>
+          </div>
+          <div class="team-card reveal d3">
+            <div class="team-avatar">👨🏾‍🎨</div>
+            <div class="team-body">
+              <div class="team-name">Ibrahim Diallo</div>
+              <div class="team-role">Directeur Commercial</div>
+              <div class="team-bio">10 ans d'expérience en développement commercial B2B en Afrique de l'Ouest.</div>
+            </div>
+          </div>
+          <div class="team-card reveal d4">
+            <div class="team-avatar">👩🏾‍⚖️</div>
+            <div class="team-body">
+              <div class="team-name">Fatoumata Sawadogo</div>
+              <div class="team-role">Directrice Juridique</div>
+              <div class="team-bio">Avocate spécialisée en droit des affaires et marchés publics UEMOA.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA ══ -->
+<section class="section" style="padding-top:2rem;">
+  <div class="wrapper">
+    <div class="cta-section reveal">
+      <h2>Prêt à ne plus manquer <em>aucune opportunité ?</em></h2>
+      <p>Rejoignez plus de 12 000 entreprises qui font confiance à Minerva Alert pour leur veille marché au Burkina Faso et dans la sous-région.</p>
+      <div class="cta-btns">
+        <a href="minerva-inscription.html" class="cta-btn-w">✍️ S'inscrire gratuitement</a>
+        <a href="minerva-appels.html" class="cta-btn-o">📋 Voir les appels d'offres</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer class="minerva-footer">
+  <div class="footer-wave">
+    <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,40 C240,0 480,60 720,30 C960,0 1200,50 1440,20 L1440,60 L0,60 Z" fill="#1A1A2E"/>
+    </svg>
+  </div>
+  <div class="footer-body">
+    <div class="footer-inner">
+      <div class="footer-col footer-brand">
+        <a href="minerva-apropos.html" class="footer-logo" style="text-decoration:none;display:inline-block;">Minerva</a>
+        <p class="footer-tagline">La plateforme N°1 des appels d'offres<br>privés et publics au Burkina Faso.</p>
+        <div class="footer-socials">
+          <a href="#" class="fsocial" title="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+          <a href="#" class="fsocial" title="Facebook"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          <a href="#" class="fsocial" title="Twitter"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" class="fsocial" title="WhatsApp"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+        </div>
+        <div class="fnl-label">Alertes par e-mail</div>
+        <div class="fnl-wrap">
+          <input type="email" class="fnl-input" placeholder="votre@email.com" />
+          <button class="fnl-btn" onclick="subscribeNL(this)">S'abonner</button>
+        </div>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Navigation</div>
+        <ul class="footer-links">
+          <li><a href="minerva.html">🏠 Accueil</a></li>
+          <li><a href="minerva-appels.html">📋 Appels d'offres</a></li>
+          <li><a href="minerva-services.html">⚡ Services</a></li>
+          <li><a href="minerva-publier.html">📢 Publier une offre</a></li>
+          <li><a href="minerva-inscription.html">✍️ S'inscrire</a></li>
+          <li><a href="minerva-connexion.html">🔐 Se connecter</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Secteurs phares</div>
+        <ul class="footer-links">
+          <li><a href="minerva-appels.html">🏗️ BTP & Génie civil</a></li>
+          <li><a href="minerva-appels.html">💻 Informatique & Tech</a></li>
+          <li><a href="minerva-appels.html">🏥 Santé & Pharmacie</a></li>
+          <li><a href="minerva-appels.html">📚 Éducation & Formation</a></li>
+          <li><a href="minerva-appels.html">🌾 Agriculture & Élevage</a></li>
+          <li><a href="minerva-appels.html">⚡ Énergie & Solaire</a></li>
+          <li><a href="minerva-appels.html">💧 Eau & Assainissement</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Informations</div>
+        <ul class="footer-links">
+          <li><a href="minerva-apropos.html">À propos de Minerva</a></li>
+          <li><a href="#">Conditions Générales</a></li>
+          <li><a href="#">Politique de confidentialité</a></li>
+          <li><a href="#">Mentions légales</a></li>
+          <li><a href="#">Nous contacter</a></li>
+          <li><a href="#">FAQ</a></li>
+        </ul>
+        <div class="footer-contact">
+          <div class="fcontact-item"><span class="fcontact-icon">📍</span><span>Ouagadougou, Burkina Faso<br>Secteur 15 — Zone commerciale</span></div>
+          <div class="fcontact-item"><span class="fcontact-icon">📧</span><span>contact@minerva-alert.bf</span></div>
+          <div class="fcontact-item"><span class="fcontact-icon">📞</span><span>+226 25 XX XX XX</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <p class="footer-copy">
+          &copy; <span id="footerYear"></span> <strong>MINERVA SASU</strong> — Tous droits réservés.
+          Ce site et son contenu sont la propriété exclusive de la société <strong>MINERVA SASU</strong>, enregistrée au Burkina Faso.
+          Toute reproduction, diffusion ou exploitation, même partielle, sans autorisation écrite préalable est strictement interdite.
+        </p>
+        <div class="footer-badges">
+          <span class="fbadge">🇧🇫 Made in Burkina</span>
+          <span class="fbadge">🔒 Site sécurisé</span>
+          <span class="fbadge">✅ Données protégées</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Cursor glow
+  document.addEventListener('mousemove', e => {
+    document.getElementById('glow').style.transform = `translate(${e.clientX-180}px,${e.clientY-180}px)`;
+  });
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .tl-item, .valeur-card');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // Animated counters
+  const counters = [
+    { id: 'c1', target: 18,    suffix: '' },
+    { id: 'c2', target: 12400, suffix: '' },
+    { id: 'c3', target: 10,    suffix: '' },
+    { id: 'c4', target: 96,    suffix: '' },
+  ];
+  const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        counters.forEach(({ id, target }) => {
+          const el = document.getElementById(id);
+          if (!el || el.dataset.counted) return;
+          el.dataset.counted = '1';
+          let start = 0;
+          const duration = 1600;
+          const step = target / (duration / 16);
+          const timer = setInterval(() => {
+            start = Math.min(start + step, target);
+            el.textContent = start >= 1000
+              ? Math.floor(start).toLocaleString('fr-FR')
+              : Math.floor(start);
+            if (start >= target) clearInterval(timer);
+          }, 16);
+        });
+        statsObserver.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+  const statsBand = document.querySelector('.stats-band');
+  if (statsBand) statsObserver.observe(statsBand);
+
+  // Footer year & newsletter
+  document.getElementById('footerYear').textContent = new Date().getFullYear();
+  function subscribeNL(btn) {
+    const input = btn.previousElementSibling;
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!re.test(input.value.trim())) {
+      input.style.borderColor = '#EF4444';
+      setTimeout(() => input.style.borderColor = '', 2000);
+      return;
+    }
+    btn.textContent = '✓ Abonné !';
+    btn.style.background = '#3AAF85';
+    btn.disabled = true;
+    input.value = '';
+    input.placeholder = 'Merci !';
+  }
+</script>
+</body>
+</html>

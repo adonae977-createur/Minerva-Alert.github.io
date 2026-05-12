@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minerva — Publier une offre</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #3B4FC4; --primary-light: #6B7FE3; --primary-pale: #E8ECFB;
+    --accent: #F4A261; --green: #3AAF85; --green-light: #5DCAA5;
+    --red: #EF4444; --bg: #F7F2EE; --bg2: #EDE8E2; --surface: #FFFFFF;
+    --text: #1A1A2E; --text-muted: #6B7280; --border: rgba(59,79,196,0.15);
+    --stripe-pink: rgba(220,160,160,0.18); --stripe-blue: rgba(130,160,230,0.18);
+  }
+  body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+
+  .bg-stripes { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  .bg-stripes::before,.bg-stripes::after { content:''; position:absolute; top:0; bottom:0; width:100%; }
+  .bg-stripes::before { background:repeating-linear-gradient(to right,transparent,transparent 60px,var(--stripe-pink) 60px,var(--stripe-pink) 80px); animation:shiftStripes 14s linear infinite; }
+  .bg-stripes::after  { background:repeating-linear-gradient(to right,transparent,transparent 90px,var(--stripe-blue) 90px,var(--stripe-blue) 100px); animation:shiftStripes 22s linear infinite reverse; opacity:.5; }
+  @keyframes shiftStripes { from{transform:translateX(0)} to{transform:translateX(100px)} }
+
+  .cursor-glow { position:fixed; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle,rgba(59,79,196,0.08) 0%,transparent 70%); pointer-events:none; z-index:0; transform:translate(-50%,-50%); transition:transform .1s ease-out; }
+
+  /* NAV */
+  nav { position:sticky; top:0; z-index:100; background:rgba(247,242,238,0.85); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); }
+  .nav-inner { display:flex; align-items:center; gap:2.5rem; height:64px; max-width:1200px; margin:0 auto; padding:0 2rem; }
+  .logo { font-family:'DM Serif Display',serif; font-size:1.5rem; color:var(--primary); text-decoration:none; letter-spacing:-0.02em; border-bottom:2.5px solid var(--primary); padding-bottom:1px; }
+  .nav-links { display:flex; gap:2rem; list-style:none; }
+  .nav-links a { font-size:.88rem; font-weight:500; color:var(--text); text-decoration:none; transition:color .2s; }
+  .nav-links a:hover { color:var(--primary); }
+  .nav-links a.active { color:var(--primary); font-weight:700; border-bottom:2px solid var(--primary); padding-bottom:2px; }
+  .nav-right { margin-left:auto; display:flex; align-items:center; gap:.75rem; }
+  .btn-outline { padding:.45rem 1.1rem; border:1.5px solid var(--primary); border-radius:8px; font-size:.83rem; font-weight:500; color:var(--primary); background:transparent; cursor:pointer; text-decoration:none; transition:background .2s; }
+  .btn-outline:hover { background:var(--primary-pale); }
+  .btn-nav-primary { padding:.48rem 1.3rem; border:none; border-radius:8px; font-size:.83rem; font-weight:600; color:#fff; background:var(--primary); cursor:pointer; text-decoration:none; box-shadow:0 2px 12px rgba(59,79,196,.25); transition:background .2s,transform .15s; }
+  .btn-nav-primary:hover { background:var(--primary-light); transform:translateY(-1px); }
+
+  .wrapper { position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:0 2rem 5rem; }
+
+  /* HEADER */
+  .page-header { padding:3rem 0 2.5rem; text-align:center; opacity:0; transform:translateY(14px); animation:fadeUp .6s .1s forwards; }
+  .page-header .tag { display:inline-block; background:var(--primary-pale); color:var(--primary); font-size:.72rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; padding:.3rem .9rem; border-radius:100px; margin-bottom:1rem; }
+  .page-header h1 { font-family:'DM Serif Display',serif; font-size:clamp(1.9rem,4vw,3rem); letter-spacing:-0.03em; margin-bottom:.6rem; }
+  .page-header h1 em { font-style:italic; color:var(--primary); }
+  .page-header p { font-size:.92rem; color:var(--text-muted); max-width:520px; margin:0 auto; line-height:1.7; }
+
+  /* STEPS */
+  .steps { display:flex; align-items:center; justify-content:center; margin:0 auto 2.5rem; max-width:620px; opacity:0; animation:fadeUp .6s .25s forwards; }
+  .step { display:flex; flex-direction:column; align-items:center; gap:.4rem; position:relative; z-index:1; }
+  .step-circle { width:38px; height:38px; border-radius:50%; border:2px solid var(--border); background:var(--surface); color:var(--text-muted); display:flex; align-items:center; justify-content:center; font-size:.82rem; font-weight:700; transition:all .35s; }
+  .step.active .step-circle { background:var(--primary); border-color:var(--primary); color:#fff; box-shadow:0 0 0 4px rgba(59,79,196,.15); }
+  .step.done .step-circle { background:var(--green); border-color:var(--green); color:#fff; }
+  .step-label { font-size:.67rem; font-weight:600; color:var(--text-muted); white-space:nowrap; letter-spacing:.04em; }
+  .step.active .step-label,.step.done .step-label { color:var(--primary); }
+  .step-line { flex:1; height:2px; background:var(--border); margin:0 6px 20px; transition:background .35s; }
+  .step-line.done { background:var(--green); }
+
+  /* LAYOUT */
+  .main-layout { display:grid; grid-template-columns:1fr 290px; gap:2rem; }
+
+  /* FORM CARD */
+  .form-card { background:rgba(255,255,255,.93); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.8); border-radius:20px; box-shadow:0 8px 40px rgba(59,79,196,.08); overflow:hidden; opacity:0; animation:fadeUp .65s .35s forwards; }
+  .step-panel { display:none; padding:2rem 2.2rem; animation:fadeUp .35s forwards; }
+  .step-panel.active { display:block; }
+  .panel-title { font-family:'DM Serif Display',serif; font-size:1.35rem; letter-spacing:-0.02em; margin-bottom:.3rem; }
+  .panel-sub { font-size:.8rem; color:var(--text-muted); margin-bottom:1.6rem; line-height:1.6; }
+  .req-note { font-size:.68rem; color:var(--text-muted); margin-bottom:1.2rem; }
+
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .form-group { margin-bottom:1rem; }
+  .form-group label { display:block; font-size:.75rem; font-weight:700; color:var(--text); margin-bottom:.32rem; letter-spacing:.03em; }
+  .form-group label .req { color:var(--red); }
+
+  .inp { width:100%; padding:.66rem .92rem; border:1.5px solid var(--border); border-radius:10px; font-family:'Sora',sans-serif; font-size:.84rem; color:var(--text); background:var(--bg); outline:none; transition:border-color .2s,box-shadow .2s,background .2s; }
+  .inp:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(59,79,196,.1); background:var(--surface); }
+  .inp.error { border-color:var(--red) !important; }
+  .inp::placeholder { color:#C0C4CF; }
+  textarea.inp { resize:vertical; min-height:115px; line-height:1.65; }
+  select.inp { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right .75rem center; padding-right:2.2rem; cursor:pointer; }
+
+  .err-msg { font-size:.7rem; color:var(--red); margin-top:.22rem; display:none; }
+  .err-msg.show { display:block; }
+
+  /* Budget wrap */
+  .budget-wrap { display:flex; }
+  .b-prefix { padding:0 .8rem; background:var(--primary-pale); color:var(--primary); font-weight:700; font-size:.76rem; border:1.5px solid var(--border); border-right:none; border-radius:10px 0 0 10px; display:flex; align-items:center; white-space:nowrap; }
+  .b-suffix { padding:0 .8rem; background:var(--bg2); color:var(--text-muted); font-size:.76rem; border:1.5px solid var(--border); border-left:none; border-radius:0 10px 10px 0; display:flex; align-items:center; white-space:nowrap; }
+  .budget-wrap .inp { border-radius:0; flex:1; }
+
+  /* Sector chips */
+  .sector-chips { display:flex; flex-wrap:wrap; gap:.45rem; }
+  .sector-chip { padding:.36rem .88rem; border-radius:100px; border:1.5px solid var(--border); font-size:.77rem; font-weight:500; color:var(--text-muted); background:var(--surface); cursor:pointer; transition:all .2s; user-select:none; }
+  .sector-chip:hover { border-color:var(--primary); color:var(--primary); }
+  .sector-chip.selected { background:var(--primary); color:#fff; border-color:var(--primary); }
+
+  /* Upload */
+  .upload-zone { border:2px dashed var(--border); border-radius:12px; padding:1.65rem; text-align:center; cursor:pointer; transition:all .25s; background:var(--bg); }
+  .upload-zone:hover,.upload-zone.drag { border-color:var(--primary); background:var(--primary-pale); }
+  .upload-icon { font-size:2rem; margin-bottom:.4rem; }
+  .upload-zone p { font-size:.8rem; color:var(--text-muted); line-height:1.55; }
+  .upload-zone strong { color:var(--primary); }
+  .upload-zone input[type="file"] { display:none; }
+  .uploaded-files { margin-top:.6rem; display:flex; flex-direction:column; gap:.35rem; }
+  .file-item { display:flex; align-items:center; justify-content:space-between; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:.42rem .7rem; font-size:.76rem; }
+  .file-item .fname { color:var(--text); font-weight:500; }
+  .file-rm { background:none; border:none; color:var(--red); cursor:pointer; font-size:.95rem; }
+
+  /* Plans */
+  .plan-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.85rem; margin-bottom:1.1rem; }
+  .plan-card { border:2px solid var(--border); border-radius:14px; padding:1.1rem .9rem; cursor:pointer; position:relative; transition:all .25s; text-align:center; background:var(--surface); }
+  .plan-card:hover { border-color:var(--primary-light); transform:translateY(-2px); box-shadow:0 6px 20px rgba(59,79,196,.1); }
+  .plan-card.selected { border-color:var(--primary); background:var(--primary-pale); box-shadow:0 0 0 4px rgba(59,79,196,.1); }
+  .plan-badge { position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; font-size:.63rem; font-weight:700; padding:.18rem .6rem; border-radius:100px; white-space:nowrap; }
+  .plan-emoji { font-size:1.55rem; margin-bottom:.35rem; }
+  .plan-name { font-size:.82rem; font-weight:700; margin-bottom:.22rem; }
+  .plan-price { font-size:1.15rem; font-weight:800; color:var(--primary); }
+  .plan-price span { font-size:.68rem; font-weight:500; color:var(--text-muted); }
+  .plan-perks { margin-top:.55rem; display:flex; flex-direction:column; gap:.25rem; }
+  .plan-perk { font-size:.68rem; color:var(--text-muted); display:flex; align-items:center; gap:.28rem; justify-content:center; }
+  .plan-perk::before { content:'✓'; color:var(--green); font-weight:700; }
+
+  /* Visibility meter */
+  .vis-card { background:var(--primary-pale); border:1px solid var(--border); border-radius:12px; padding:1rem 1.15rem; margin-bottom:1.1rem; }
+  .vis-card h4 { font-size:.78rem; font-weight:700; margin-bottom:.4rem; }
+  .vis-label { font-size:.8rem; color:var(--text-muted); margin-bottom:.45rem; }
+  .vis-bar { height:6px; background:var(--bg2); border-radius:10px; overflow:hidden; }
+  .vis-fill { height:100%; background:linear-gradient(to right,var(--primary),var(--green)); border-radius:10px; width:0; transition:width .8s ease; }
+
+  /* Summary */
+  .summary-box { background:var(--primary-pale); border:1px solid var(--border); border-radius:12px; padding:1.1rem 1.2rem; margin-bottom:1.1rem; }
+  .sum-row { display:flex; justify-content:space-between; align-items:flex-start; font-size:.81rem; margin-bottom:.48rem; }
+  .sum-row:last-child { margin:0; padding-top:.6rem; border-top:1px solid var(--border); }
+  .sum-row .k { color:var(--text-muted); flex-shrink:0; margin-right:.5rem; }
+  .sum-row .v { font-weight:600; color:var(--text); text-align:right; max-width:58%; word-break:break-word; }
+  .sum-row.total .k { font-weight:700; color:var(--text); }
+  .sum-row.total .v { font-size:.98rem; font-weight:800; color:var(--primary); }
+
+  /* Buttons */
+  .btn-row { display:flex; gap:.75rem; justify-content:space-between; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border); }
+  .btn-back { padding:.7rem 1.35rem; border:1.5px solid var(--border); border-radius:10px; background:transparent; font-family:'Sora',sans-serif; font-size:.85rem; font-weight:600; color:var(--text-muted); cursor:pointer; transition:all .2s; }
+  .btn-back:hover { border-color:var(--primary); color:var(--primary); }
+  .btn-next { padding:.7rem 1.75rem; border-radius:10px; border:none; background:var(--primary); color:#fff; font-family:'Sora',sans-serif; font-size:.87rem; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(59,79,196,.28); transition:all .2s; display:flex; align-items:center; gap:.4rem; }
+  .btn-next:hover { background:var(--primary-light); transform:translateY(-1px); }
+  .btn-publish { padding:.72rem 1.75rem; border-radius:10px; border:none; background:var(--green); color:#fff; font-family:'Sora',sans-serif; font-size:.89rem; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(58,175,133,.3); transition:all .2s; display:flex; align-items:center; gap:.4rem; }
+  .btn-publish:hover { background:var(--green-light); transform:translateY(-1px); }
+
+  /* RIGHT PANEL */
+  .right-panel { display:flex; flex-direction:column; gap:1.1rem; opacity:0; transform:translateY(16px); animation:fadeUp .7s .5s forwards; }
+  .r-card { background:rgba(255,255,255,.93); border:1px solid var(--border); border-radius:16px; padding:1.15rem 1.2rem; }
+  .r-card h3 { font-size:.8rem; font-weight:700; margin-bottom:.7rem; display:flex; align-items:center; gap:.4rem; }
+  .tip-list { display:flex; flex-direction:column; gap:.55rem; }
+  .tip-item { display:flex; gap:.55rem; font-size:.77rem; color:var(--text-muted); line-height:1.5; }
+  .tip-dot { width:6px; height:6px; border-radius:50%; background:var(--primary); margin-top:5px; flex-shrink:0; }
+  .stat-list { display:flex; flex-direction:column; gap:.65rem; }
+  .stat-row { display:flex; align-items:center; justify-content:space-between; }
+  .stat-row .slabel { font-size:.75rem; color:var(--text-muted); }
+  .stat-row .sval { font-size:.85rem; font-weight:700; color:var(--primary); }
+  .plan-mini { display:flex; flex-direction:column; gap:.4rem; }
+  .plan-mini-item { display:flex; align-items:center; justify-content:space-between; padding:.48rem .65rem; border-radius:8px; font-size:.75rem; cursor:pointer; transition:background .2s; }
+  .plan-mini-item:hover { background:var(--primary-pale); }
+  .plan-mini-item .pn { font-weight:600; }
+  .plan-mini-item .pp { color:var(--primary); font-weight:700; }
+
+  /* SUCCESS */
+  .success-overlay { position:fixed; inset:0; z-index:500; background:rgba(26,26,46,.55); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; }
+  .success-overlay.show { display:flex; }
+  .success-box { background:var(--surface); border-radius:24px; padding:2.8rem 2.2rem; text-align:center; max-width:420px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.2); animation:popIn .4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  .success-icon { font-size:4rem; margin-bottom:1rem; animation:bounce .6s .4s ease both; }
+  .success-box h2 { font-family:'DM Serif Display',serif; font-size:1.7rem; margin-bottom:.5rem; }
+  .success-box h2 em { font-style:italic; color:var(--green); }
+  .success-box p { font-size:.83rem; color:var(--text-muted); line-height:1.6; margin-bottom:.65rem; }
+  .success-ref { display:inline-block; background:var(--primary-pale); color:var(--primary); font-size:.77rem; font-weight:700; padding:.28rem 1rem; border-radius:100px; margin-bottom:1.4rem; letter-spacing:.05em; }
+  .success-btns { display:flex; gap:.75rem; justify-content:center; flex-wrap:wrap; }
+  .btn-go { padding:.66rem 1.4rem; border-radius:10px; border:none; background:var(--primary); color:#fff; font-family:'Sora',sans-serif; font-size:.85rem; font-weight:600; cursor:pointer; transition:background .2s; }
+  .btn-go:hover { background:var(--primary-light); }
+  .btn-go2 { padding:.66rem 1.4rem; border-radius:10px; border:1.5px solid var(--border); background:transparent; color:var(--text-muted); font-family:'Sora',sans-serif; font-size:.85rem; font-weight:600; cursor:pointer; transition:all .2s; }
+  .btn-go2:hover { border-color:var(--primary); color:var(--primary); }
+
+  @keyframes fadeUp { to{opacity:1;transform:translateY(0)} }
+  @keyframes popIn { from{opacity:0;transform:scale(.8)} to{opacity:1;transform:scale(1)} }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 40%{transform:translateY(-16px)} 70%{transform:translateY(-8px)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+  .shake { animation:shake .4s ease; }
+
+  @media(max-width:900px){ .main-layout{grid-template-columns:1fr} .right-panel{order:-1;display:grid;grid-template-columns:1fr 1fr} }
+  @media(max-width:560px){ .form-row{grid-template-columns:1fr} .plan-grid{grid-template-columns:1fr} .right-panel{grid-template-columns:1fr} }
+
+/* ── Footer base ── */
+.minerva-footer {
+  position: relative;
+  margin-top: 3rem;
+  font-family: 'Sora', sans-serif;
+}
+ 
+/* Vague SVG de transition */
+.footer-wave {
+  display: block;
+  line-height: 0;
+  overflow: hidden;
+}
+.footer-wave svg {
+  display: block;
+  width: 100%;
+  height: 60px;
+}
+ 
+/* Corps du footer */
+.footer-body {
+  background: #1A1A2E;
+  color: rgba(255,255,255,0.75);
+}
+ 
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.2fr 1.4fr;
+  gap: 2.5rem;
+}
+ 
+/* Brand column */
+.footer-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  border-bottom: 2.5px solid #3B4FC4;
+  display: inline-block;
+  padding-bottom: 2px;
+  margin-bottom: 0.85rem;
+}
+ 
+.footer-tagline {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+}
+ 
+/* Social icons */
+.footer-socials {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.4rem;
+}
+.fsocial {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  transition: all 0.22s;
+}
+.fsocial:hover {
+  background: #3B4FC4;
+  border-color: #3B4FC4;
+  color: #fff;
+  transform: translateY(-2px);
+}
+ 
+/* Newsletter */
+.fnl-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 0.5rem;
+}
+.fnl-wrap {
+  display: flex;
+  gap: 0;
+}
+.fnl-input {
+  flex: 1;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.8rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.fnl-input::placeholder { color: rgba(255,255,255,0.3); }
+.fnl-input:focus { border-color: #3B4FC4; }
+.fnl-btn {
+  padding: 0.55rem 1rem;
+  border-radius: 0 8px 8px 0;
+  border: none;
+  background: #3B4FC4;
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.fnl-btn:hover { background: #6B7FE3; }
+ 
+/* Column titles */
+.footer-col-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+ 
+/* Links */
+.footer-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.footer-links a {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.58);
+  text-decoration: none;
+  transition: color 0.2s, padding-left 0.2s;
+  display: inline-block;
+}
+.footer-links a:hover {
+  color: #ffffff;
+  padding-left: 4px;
+}
+ 
+/* Contact block */
+.footer-contact {
+  margin-top: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.fcontact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.76rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.55;
+}
+.fcontact-icon { flex-shrink: 0; font-size: 0.9rem; margin-top: 1px; }
+ 
+/* Bottom bar */
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.07);
+  background: rgba(0,0,0,0.25);
+}
+.footer-bottom-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.footer-copy {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.65;
+  max-width: 680px;
+}
+.footer-copy strong { color: rgba(255,255,255,0.6); }
+ 
+/* Badges */
+.footer-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.fbadge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 0.25rem 0.7rem;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+ 
+/* ── Responsive ── */
+@media (max-width: 1000px) {
+  .footer-inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .footer-brand { grid-column: 1 / -1; }
+}
+@media (max-width: 580px) {
+  .footer-inner { grid-template-columns: 1fr; padding: 2rem 1.5rem 1.5rem; }
+  .footer-bottom-inner { flex-direction: column; gap: 0.85rem; }
+  .footer-badges { justify-content: flex-start; }
+}
+</style>
+<link rel="stylesheet" href="minerva-shared.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#3B4FC4">
+<meta name="description" content="Minerva — veille et appels d'offres privés et publics au Burkina Faso et en Afrique de l'Ouest.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Minerva">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<script defer src="pwa-register.js"></script>
+</head>
+<body>
+
+<div class="cursor-glow" id="glow"></div>
+<div class="bg-stripes"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="minerva.html" class="logo">Minerva</a>
+    <ul class="nav-links">
+      <li><a href="minerva.html">Accueil</a></li>
+      <li><a href="minerva-appels.html">Appels d'offres</a></li>
+      <li><a href="minerva-services.html">Services</a></li>
+      <li><a href="minerva-publier.html">Publier</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="minerva-connexion.html" class="btn-outline">Connexion</a>
+      <a href="minerva-inscription.html" class="btn-nav-primary">S'inscrire</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="tag">📢 Publier une offre</div>
+    <h1>Touchez des milliers de<br><em>prestataires qualifiés</em></h1>
+    <p>Publiez votre appel d'offres en quelques minutes et recevez des propositions de fournisseurs vérifiés au Burkina Faso et dans la sous-région.</p>
+  </div>
+
+  <!-- STEPS -->
+  <div class="steps" id="stepsBar">
+    <div class="step active" id="si1"><div class="step-circle" id="sc1">1</div><div class="step-label">Informations</div></div>
+    <div class="step-line" id="ln1"></div>
+    <div class="step" id="si2"><div class="step-circle" id="sc2">2</div><div class="step-label">Détails & fichiers</div></div>
+    <div class="step-line" id="ln2"></div>
+    <div class="step" id="si3"><div class="step-circle" id="sc3">3</div><div class="step-label">Visibilité & tarif</div></div>
+    <div class="step-line" id="ln3"></div>
+    <div class="step" id="si4"><div class="step-circle" id="sc4">4</div><div class="step-label">Récapitulatif</div></div>
+  </div>
+
+  <div class="main-layout">
+
+    <!-- FORM -->
+    <div class="form-card">
+
+      <!-- STEP 1 -->
+      <div class="step-panel active" id="p1">
+        <h2 class="panel-title">Informations générales</h2>
+        <p class="panel-sub">Décrivez votre appel d'offres pour attirer les bons prestataires.</p>
+        <p class="req-note">Les champs marqués <span style="color:var(--red)">*</span> sont obligatoires.</p>
+
+        <div class="form-group">
+          <label>Intitulé de l'appel d'offres <span class="req">*</span></label>
+          <input class="inp" type="text" id="titre" placeholder="Ex: Fourniture de matériel informatique pour le Ministère de l'Éducation" />
+          <div class="err-msg" id="titreErr">L'intitulé est obligatoire.</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Type de marché <span class="req">*</span></label>
+            <select class="inp" id="typeM">
+              <option value="">-- Sélectionner --</option>
+              <option>Public</option><option>Privé</option><option>International</option>
+            </select>
+            <div class="err-msg" id="typeMErr">Choisissez un type.</div>
+          </div>
+          <div class="form-group">
+            <label>Région <span class="req">*</span></label>
+            <select class="inp" id="region">
+              <option value="">-- Sélectionner --</option>
+              <option>Centre (Ouagadougou)</option>
+              <option>Hauts-Bassins (Bobo-Dioulasso)</option>
+              <option>Boucle du Mouhoun</option>
+              <option>Sahel (Dori)</option>
+              <option>Est (Fada N'Gourma)</option>
+              <option>Nord (Ouahigouya)</option>
+              <option>Centre-Sud (Manga)</option>
+              <option>Cascades (Banfora)</option>
+              <option>Centre-Ouest (Koudougou)</option>
+              <option>National</option>
+            </select>
+            <div class="err-msg" id="regionErr">Choisissez une région.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Secteur d'activité <span class="req">*</span></label>
+          <div class="sector-chips" id="chips">
+            <div class="sector-chip" onclick="pickSector(this)">🏗️ BTP</div>
+            <div class="sector-chip" onclick="pickSector(this)">💻 Informatique</div>
+            <div class="sector-chip" onclick="pickSector(this)">🏥 Santé</div>
+            <div class="sector-chip" onclick="pickSector(this)">📚 Éducation</div>
+            <div class="sector-chip" onclick="pickSector(this)">🌾 Agriculture</div>
+            <div class="sector-chip" onclick="pickSector(this)">⚡ Énergie</div>
+            <div class="sector-chip" onclick="pickSector(this)">🚛 Transport</div>
+            <div class="sector-chip" onclick="pickSector(this)">💧 Eau & Assainissement</div>
+            <div class="sector-chip" onclick="pickSector(this)">💰 Finance</div>
+            <div class="sector-chip" onclick="pickSector(this)">⛏️ Mines</div>
+          </div>
+          <div class="err-msg" id="sectorErr">Veuillez choisir un secteur.</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Budget estimé</label>
+            <div class="budget-wrap">
+              <span class="b-prefix">FCFA</span>
+              <input class="inp" type="number" id="budget" placeholder="Ex: 50000000" />
+              <span class="b-suffix">TTC</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Date limite de soumission <span class="req">*</span></label>
+            <input class="inp" type="date" id="dateLim" />
+            <div class="err-msg" id="dateErr">Date obligatoire.</div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <div></div>
+          <button class="btn-next" onclick="go(2)">Étape suivante →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step-panel" id="p2">
+        <h2 class="panel-title">Détails & documents</h2>
+        <p class="panel-sub">Décrivez précisément le besoin et joignez vos pièces (DAO, cahier des charges…).</p>
+
+        <div class="form-group">
+          <label>Description détaillée <span class="req">*</span></label>
+          <textarea class="inp" id="desc" placeholder="Décrivez l'objet du marché, les prestations attendues, les critères de sélection, les conditions de participation…"></textarea>
+          <div class="err-msg" id="descErr">La description est obligatoire.</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Organisme / Entreprise <span class="req">*</span></label>
+            <input class="inp" type="text" id="orga" placeholder="Ex: Ministère des Infrastructures" />
+            <div class="err-msg" id="orgaErr">Champ obligatoire.</div>
+          </div>
+          <div class="form-group">
+            <label>E-mail de contact <span class="req">*</span></label>
+            <input class="inp" type="email" id="ctact" placeholder="contact@organisation.bf" />
+            <div class="err-msg" id="ctactErr">E-mail valide requis.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Lieu de dépôt des offres</label>
+          <input class="inp" type="text" id="lieu" placeholder="Ex: Direction des marchés publics, Ouagadougou — Secteur 4" />
+        </div>
+
+        <div class="form-group">
+          <label>Documents à joindre</label>
+          <div class="upload-zone" id="dropZone" onclick="document.getElementById('fInput').click()" ondragover="dOver(event)" ondragleave="dLeave(event)" ondrop="dDrop(event)">
+            <div class="upload-icon">📎</div>
+            <p><strong>Cliquez pour parcourir</strong> ou glissez vos fichiers ici<br><span style="font-size:.7rem">PDF, Word, Excel — max 10 Mo par fichier</span></p>
+            <input type="file" id="fInput" multiple accept=".pdf,.doc,.docx,.xls,.xlsx" onchange="addFiles(this.files)" />
+          </div>
+          <div class="uploaded-files" id="fList"></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="go(1)">← Retour</button>
+          <button class="btn-next" onclick="go(3)">Étape suivante →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step-panel" id="p3">
+        <h2 class="panel-title">Visibilité & tarification</h2>
+        <p class="panel-sub">Choisissez le plan qui maximisera la portée de votre offre.</p>
+
+        <div class="plan-grid">
+          <div class="plan-card" onclick="pickPlan(this)" data-plan="Essentiel" data-price="50000" data-vis="28" data-vues="1 500" data-days="30">
+            <div class="plan-emoji">📋</div>
+            <div class="plan-name">Essentiel</div>
+            <div class="plan-price">50 000 <span>FCFA</span></div>
+            <div class="plan-perks">
+              <div class="plan-perk">Publication 30 jours</div>
+              <div class="plan-perk">Listing standard</div>
+              <div class="plan-perk">~1 500 vues</div>
+            </div>
+          </div>
+          <div class="plan-card selected" onclick="pickPlan(this)" data-plan="Pro" data-price="100000" data-vis="55" data-vues="5 000" data-days="60">
+            <div class="plan-badge">⭐ Recommandé</div>
+            <div class="plan-emoji">🚀</div>
+            <div class="plan-name">Pro</div>
+            <div class="plan-price">100 000 <span>FCFA</span></div>
+            <div class="plan-perks">
+              <div class="plan-perk">Publication 60 jours</div>
+              <div class="plan-perk">Mise en avant accueil</div>
+              <div class="plan-perk">~5 000 vues</div>
+              <div class="plan-perk">Alertes e-mail ciblées</div>
+            </div>
+          </div>
+          <div class="plan-card" onclick="pickPlan(this)" data-plan="Premium" data-price="200000" data-vis="90" data-vues="12 000" data-days="90">
+            <div class="plan-emoji">💎</div>
+            <div class="plan-name">Premium</div>
+            <div class="plan-price">200 000 <span>FCFA</span></div>
+            <div class="plan-perks">
+              <div class="plan-perk">Publication 90 jours</div>
+              <div class="plan-perk">Top des résultats</div>
+              <div class="plan-perk">~12 000 vues</div>
+              <div class="plan-perk">Alertes SMS + e-mail</div>
+              <div class="plan-perk">Rapport de performance</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vis-card">
+          <h4>📊 Visibilité estimée avec votre plan</h4>
+          <div class="vis-label" id="visLbl">Plan <strong>Pro</strong> — environ <strong>5 000 vues</strong> en 60 jours</div>
+          <div class="vis-bar"><div class="vis-fill" id="visFill" style="width:55%"></div></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="go(2)">← Retour</button>
+          <button class="btn-next" onclick="go(4)">Récapitulatif →</button>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step-panel" id="p4">
+        <h2 class="panel-title">Récapitulatif & publication</h2>
+        <p class="panel-sub">Vérifiez toutes les informations avant de mettre votre offre en ligne.</p>
+
+        <div class="summary-box" id="sumBox"></div>
+
+        <label style="display:flex;align-items:flex-start;gap:.55rem;cursor:pointer;font-size:.79rem;color:var(--text-muted);line-height:1.55;margin-bottom:1.2rem;">
+          <input type="checkbox" id="cgv" style="margin-top:3px;accent-color:var(--primary);flex-shrink:0;" />
+          J'atteste que les informations sont exactes et j'accepte les <a href="#" style="color:var(--primary);font-weight:600;text-decoration:none;">conditions de publication</a> de Minerva Alert.
+        </label>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="go(3)">← Retour</button>
+          <button class="btn-publish" onclick="publish()">📢 Publier mon offre</button>
+        </div>
+      </div>
+
+    </div><!-- /form-card -->
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <div class="r-card">
+        <h3>💡 Conseils pour bien publier</h3>
+        <div class="tip-list">
+          <div class="tip-item"><div class="tip-dot"></div>Un titre précis et accrocheur augmente le taux de réponse de 60 %.</div>
+          <div class="tip-item"><div class="tip-dot"></div>Indiquez le budget estimé — les prestataires répondent 2× plus vite.</div>
+          <div class="tip-item"><div class="tip-dot"></div>Joignez le cahier des charges pour des soumissions de qualité.</div>
+          <div class="tip-item"><div class="tip-dot"></div>Fixez une date limite réaliste (minimum 15 jours).</div>
+        </div>
+      </div>
+
+      <div class="r-card">
+        <h3>📈 Statistiques plateforme</h3>
+        <div class="stat-list">
+          <div class="stat-row"><span class="slabel">Fournisseurs actifs</span><span class="sval">12 400+</span></div>
+          <div class="stat-row"><span class="slabel">AO publiés ce mois</span><span class="sval">348</span></div>
+          <div class="stat-row"><span class="slabel">Taux de réponse moyen</span><span class="sval">78 %</span></div>
+          <div class="stat-row"><span class="slabel">Délai moyen réponse</span><span class="sval">4,2 jours</span></div>
+        </div>
+      </div>
+
+      <div class="r-card">
+        <h3>🎯 Comparatif des plans</h3>
+        <div class="plan-mini">
+          <div class="plan-mini-item" onclick="go(3)"><span class="pn">📋 Essentiel</span><span class="pp">50 000 FCFA</span></div>
+          <div class="plan-mini-item" style="background:var(--primary-pale)" onclick="go(3)"><span class="pn">🚀 Pro ⭐</span><span class="pp">100 000 FCFA</span></div>
+          <div class="plan-mini-item" onclick="go(3)"><span class="pn">💎 Premium</span><span class="pp">200 000 FCFA</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-overlay" id="successOv">
+  <div class="success-box">
+    <div class="success-icon">🎉</div>
+    <h2>Offre <em>publiée !</em></h2>
+    <p>Votre appel d'offres est maintenant en ligne et visible par des milliers de prestataires qualifiés sur Minerva Alert.</p>
+    <div class="success-ref" id="sRef">Réf. AO-2026-XXXX</div>
+    <div class="success-btns">
+      <button class="btn-go" onclick="location.href='minerva-appels.html'">Voir les offres →</button>
+      <button class="btn-go2" onclick="resetForm()">Publier une autre offre</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Cursor
+  document.addEventListener('mousemove', e => {
+    document.getElementById('glow').style.transform = `translate(${e.clientX-170}px,${e.clientY-170}px)`;
+  });
+
+  let cur=1, sector='', plan={name:'Pro',price:100000,vis:55,vues:'5 000',days:60}, files=[];
+
+  // Step navigation
+  function go(n) {
+    if (n > cur && !validate(cur)) return;
+    markStep(cur, 'done');
+    document.getElementById('p'+cur).classList.remove('active');
+    cur = n;
+    document.getElementById('p'+n).classList.add('active');
+    markStep(n, 'active');
+    if (n===4) buildSum();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function markStep(n, state) {
+    const si = document.getElementById('si'+n);
+    const sc = document.getElementById('sc'+n);
+    if (!si) return;
+    si.className = 'step ' + state;
+    sc.innerHTML = state==='done' ? '✓' : n;
+    if (n<4) { const ln=document.getElementById('ln'+n); if(ln) ln.className='step-line'+(state==='done'?' done':''); }
+  }
+
+  // Validation
+  function validate(s) {
+    let ok=true;
+    const chk=(fid,eid,bad)=>{ const f=document.getElementById(fid); const e=document.getElementById(eid); if(bad){f&&f.classList.add('error');e&&e.classList.add('show');ok=false;}else{f&&f.classList.remove('error');e&&e.classList.remove('show');} };
+
+    if (s===1) {
+      chk('titre','titreErr',!v('titre'));
+      chk('typeM','typeMErr',!v('typeM'));
+      chk('region','regionErr',!v('region'));
+      chk('dateLim','dateErr',!v('dateLim'));
+      if(!sector){ document.getElementById('sectorErr').classList.add('show'); ok=false; }
+      else document.getElementById('sectorErr').classList.remove('show');
+    }
+    if (s===2) {
+      chk('desc','descErr',!v('desc'));
+      chk('orga','orgaErr',!v('orga'));
+      const re=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      chk('ctact','ctactErr',!re.test(v('ctact')));
+    }
+    if (!ok) { document.querySelector('.form-card').classList.add('shake'); setTimeout(()=>document.querySelector('.form-card').classList.remove('shake'),450); }
+    return ok;
+  }
+  function v(id){ return (document.getElementById(id)||{}).value?.trim()||''; }
+
+  // Sector chips
+  function pickSector(el) {
+    document.querySelectorAll('.sector-chip').forEach(c=>c.classList.remove('selected'));
+    el.classList.add('selected');
+    sector = el.textContent.trim();
+    document.getElementById('sectorErr').classList.remove('show');
+  }
+
+  // Plan selection
+  function pickPlan(el) {
+    document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('selected'));
+    el.classList.add('selected');
+    plan = { name:el.dataset.plan, price:parseInt(el.dataset.price), vis:parseInt(el.dataset.vis), vues:el.dataset.vues, days:el.dataset.days };
+    const fill=document.getElementById('visFill');
+    const lbl=document.getElementById('visLbl');
+    fill.style.width='0';
+    setTimeout(()=>fill.style.width=plan.vis+'%',50);
+    lbl.innerHTML=`Plan <strong>${plan.name}</strong> — environ <strong>${plan.vues} vues</strong> en ${plan.days} jours`;
+  }
+
+  // File upload
+  function addFiles(fl) { for(const f of fl) if(!files.find(u=>u.name===f.name)) files.push(f); renderFiles(); }
+  function renderFiles() {
+    document.getElementById('fList').innerHTML = files.map((f,i)=>`
+      <div class="file-item">
+        <span class="fname">📄 ${f.name}</span>
+        <span style="display:flex;align-items:center;gap:.4rem">
+          <span style="font-size:.73rem;color:var(--text-muted)">${(f.size/1024).toFixed(0)} Ko</span>
+          <button class="file-rm" onclick="rmFile(${i})">✕</button>
+        </span>
+      </div>`).join('');
+  }
+  function rmFile(i){ files.splice(i,1); renderFiles(); }
+  function dOver(e){ e.preventDefault(); document.getElementById('dropZone').classList.add('drag'); }
+  function dLeave(){ document.getElementById('dropZone').classList.remove('drag'); }
+  function dDrop(e){ e.preventDefault(); dLeave(); addFiles(e.dataTransfer.files); }
+
+  // Summary
+  function buildSum() {
+    const bgt = v('budget') ? Number(v('budget')).toLocaleString('fr-FR')+' FCFA' : 'Non renseigné';
+    const dat = v('dateLim') ? new Date(v('dateLim')).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+    const rows = [
+      ['Intitulé', v('titre')||'—'],
+      ['Type de marché', v('typeM')||'—'],
+      ['Secteur', sector||'—'],
+      ['Région', v('region')||'—'],
+      ['Budget estimé', bgt],
+      ['Date limite', dat],
+      ['Organisme', v('orga')||'—'],
+      ['Contact', v('ctact')||'—'],
+      ['Plan choisi', plan.name+' — '+plan.vues+' vues estimées'],
+    ];
+    document.getElementById('sumBox').innerHTML =
+      rows.map(([k,vl])=>`<div class="sum-row"><span class="k">${k}</span><span class="v">${vl}</span></div>`).join('')+
+      `<div class="sum-row total"><span class="k">💳 Total à payer</span><span class="v">${plan.price.toLocaleString('fr-FR')} FCFA</span></div>`;
+  }
+
+  // Publish
+  function publish() {
+    if (!document.getElementById('cgv').checked) { alert('Veuillez accepter les conditions de publication.'); return; }
+    const ref = 'AO-2026-'+Math.floor(1000+Math.random()*9000);
+    document.getElementById('sRef').textContent = 'Réf. '+ref;
+    document.getElementById('successOv').classList.add('show');
+  }
+
+  function resetForm() {
+    document.getElementById('successOv').classList.remove('show');
+    cur=1; sector=''; files=[];
+    plan={name:'Pro',price:100000,vis:55,vues:'5 000',days:60};
+    document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('p1').classList.add('active');
+    for(let i=1;i<=4;i++) { const si=document.getElementById('si'+i); const sc=document.getElementById('sc'+i); si.className='step'+(i===1?' active':''); sc.innerHTML=i; const ln=document.getElementById('ln'+i); if(ln) ln.className='step-line'; }
+    document.querySelectorAll('.inp').forEach(i=>i.value='');
+    document.querySelectorAll('.sector-chip').forEach(c=>c.classList.remove('selected'));
+    document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('selected'));
+    document.querySelector('[data-plan="Pro"]').classList.add('selected');
+    renderFiles();
+  }
+
+
+  // Année dynamique dans le copyright
+  document.getElementById('footerYear').textContent = new Date().getFullYear();
+ 
+  // Abonnement newsletter (simulation)
+  function subscribeNL(btn) {
+    const input = btn.previousElementSibling;
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!re.test(input.value.trim())) {
+      input.style.borderColor = '#EF4444';
+      input.placeholder = 'E-mail invalide…';
+      setTimeout(() => { input.style.borderColor = ''; input.placeholder = 'votre@email.com'; }, 2000);
+      return;
+    }
+    btn.textContent = '✓ Abonné !';
+    btn.style.background = '#3AAF85';
+    btn.disabled = true;
+    input.value = '';
+    input.placeholder = 'Merci pour votre inscription !';
+  }
+</script>
+<!-- ============================================================
+     MINERVA ALERT — FOOTER UNIVERSEL
+     À coller juste avant </body> sur chaque page du site
+     ============================================================ -->
+ 
+<footer class="minerva-footer">
+ 
+  <!-- Vague décorative -->
+  <div class="footer-wave">
+    <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,40 C240,0 480,60 720,30 C960,0 1200,50 1440,20 L1440,60 L0,60 Z" fill="#1A1A2E"/>
+    </svg>
+  </div>
+ 
+  <div class="footer-body">
+    <div class="footer-inner">
+ 
+      <!-- COL 1 : Brand -->
+      <div class="footer-col footer-brand">
+        <div class="footer-logo">Minerva</div>
+        <p class="footer-tagline">La plateforme N°1 des appels d'offres<br>privés et publics au Burkina Faso.</p>
+        <div class="footer-socials">
+          <a href="#" class="fsocial" title="LinkedIn" aria-label="LinkedIn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <a href="#" class="fsocial" title="Facebook" aria-label="Facebook">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+          <a href="#" class="fsocial" title="Twitter / X" aria-label="Twitter">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <a href="#" class="fsocial" title="WhatsApp" aria-label="WhatsApp">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </a>
+        </div>
+        <!-- Newsletter mini -->
+        <div class="footer-newsletter">
+          <p class="fnl-label">Alertes par e-mail</p>
+          <div class="fnl-wrap">
+            <input type="email" class="fnl-input" placeholder="votre@email.com" />
+            <button class="fnl-btn" onclick="subscribeNL(this)">S'abonner</button>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- COL 2 : Navigation -->
+      <div class="footer-col">
+        <div class="footer-col-title">Navigation</div>
+        <ul class="footer-links">
+          <li><a href="minerva.html">🏠 Accueil</a></li>
+          <li><a href="minerva-appels.html">📋 Appels d'offres</a></li>
+          <li><a href="minerva-services.html">⚡ Services</a></li>
+          <li><a href="minerva-publier.html">📢 Publier une offre</a></li>
+          <li><a href="minerva-inscription.html">✍️ S'inscrire</a></li>
+          <li><a href="minerva-connexion.html">🔐 Se connecter</a></li>
+        </ul>
+      </div>
+ 
+      <!-- COL 3 : Secteurs -->
+      <div class="footer-col">
+        <div class="footer-col-title">Secteurs phares</div>
+        <ul class="footer-links">
+          <li><a href="minerva-appels.html">🏗️ BTP & Génie civil</a></li>
+          <li><a href="minerva-appels.html">💻 Informatique & Tech</a></li>
+          <li><a href="minerva-appels.html">🏥 Santé & Pharmacie</a></li>
+          <li><a href="minerva-appels.html">📚 Éducation & Formation</a></li>
+          <li><a href="minerva-appels.html">🌾 Agriculture & Élevage</a></li>
+          <li><a href="minerva-appels.html">⚡ Énergie & Solaire</a></li>
+          <li><a href="minerva-appels.html">💧 Eau & Assainissement</a></li>
+          <li><a href="minerva-appels.html">⛏️ Mines & Extraction</a></li>
+        </ul>
+      </div>
+ 
+      <!-- COL 4 : Informations -->
+      <div class="footer-col">
+        <div class="footer-col-title">Informations</div>
+        <ul class="footer-links">
+          <li><a href="#">À propos de Minerva</a></li>
+          <li><a href="#">Conditions Générales d'Utilisation</a></li>
+          <li><a href="#">Politique de confidentialité</a></li>
+          <li><a href="#">Mentions légales</a></li>
+          <li><a href="#">Nous contacter</a></li>
+          <li><a href="#">FAQ</a></li>
+        </ul>
+        <!-- Contact block -->
+        <div class="footer-contact">
+          <div class="fcontact-item">
+            <span class="fcontact-icon">📍</span>
+            <span>Ouagadougou, Burkina Faso<br>Secteur 15 — Zone commerciale</span>
+          </div>
+          <div class="fcontact-item">
+            <span class="fcontact-icon">📧</span>
+            <span>contact@minerva-alert.bf</span>
+          </div>
+          <div class="fcontact-item">
+            <span class="fcontact-icon">📞</span>
+            <span>+226 25 XX XX XX</span>
+          </div>
+        </div>
+      </div>
+ 
+    </div><!-- /footer-inner -->
+ 
+    <!-- Bottom bar -->
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <p class="footer-copy">
+          &copy; <span id="footerYear"></span> <strong>MINERVA SASU</strong> — Tous droits réservés.
+          Ce site et son contenu sont la propriété exclusive de la société
+          <strong>MINERVA SASU</strong>, enregistrée au Burkina Faso.
+          Toute reproduction, diffusion ou exploitation, même partielle, sans autorisation écrite préalable est strictement interdite.
+        </p>
+        <div class="footer-badges">
+          <span class="fbadge">🇧🇫 Made in Burkina</span>
+          <span class="fbadge">🔒 Site sécurisé</span>
+          <span class="fbadge">✅ Données protégées</span>
+        </div>
+      </div>
+    </div>
+ 
+  </div><!-- /footer-body -->
+</footer>
+</body>
+</html>

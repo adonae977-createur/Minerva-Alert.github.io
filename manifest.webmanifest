@@ -2,7 +2,7 @@
   "name": "Minerva — Appels d'offres",
   "short_name": "Minerva",
   "description": "Veille et appels d'offres privés et publics au Burkina Faso et en Afrique de l'Ouest.",
-  "start_url": "./minerva.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#F7F2EE",

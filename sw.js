@@ -1,7 +1,7 @@
 /* Minerva — offline shell + runtime cache (HTTPS or localhost only) */
 var CACHE_NAME = 'minerva-v3';
 var PRECACHE_URLS = [
-  './index.html',
+  './minerva.html',
   './minerva-appels.html',
   './minerva-services.html',
   './minerva-publier.html',

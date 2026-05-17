@@ -1273,10 +1273,18 @@ function dlClass(days) {
 
 function renderRecommended() {
   const list = document.getElementById('aoRecommendedList');
-  list.innerHTML = AOS.map(ao => {
+  if (!list) return; // Sécurité au cas où l'élément n'existe pas
+
+  // Étape de contrôle : On découpe le tableau AOS de l'index 0 à 5 (exclu)
+  // Tu peux changer le chiffre 5 par le nombre exact que tu veux afficher (10, 15, etc.)
+  const controlledOffers = AOS.slice(0, 5);
+
+  // On applique le rendu uniquement sur ce sous-ensemble
+  list.innerHTML = controlledOffers.map(ao => {
     const dl = dlClass(ao.days);
     const bLabel = ao.type === 'Public' ? 'badge-pub' : ao.type === 'Privé' ? 'badge-priv' : 'badge-intl';
     const bText  = ao.type;
+    
     return `
     <div class="ao-item" onclick="openModal(AOS[${ao.id-1}])">
       <div class="ao-thumb" style="background:${ao.bg}">${ao.emoji}</div>

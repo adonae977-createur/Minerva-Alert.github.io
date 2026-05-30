@@ -660,7 +660,24 @@
   <span id="toastMsg"></span>
 </div>
 
-<script>
+<script type="module">
+// ── Imports Firebase (remplace 10.x.x par ta version exacte) ──
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// ── Config Firebase (copie depuis ta console Firebase) ──
+const firebaseConfig = {
+  apiKey:            "COLLE_TON_API_KEY_ICI",
+  authDomain:        "COLLE_TON_AUTH_DOMAIN_ICI",
+  projectId:         "COLLE_TON_PROJECT_ID_ICI",
+  storageBucket:     "COLLE_TON_STORAGE_BUCKET_ICI",
+  messagingSenderId: "COLLE_TON_MESSAGING_SENDER_ID_ICI",
+  appId:             "COLLE_TON_APP_ID_ICI"
+};
+
+// Initialisation Firebase
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
   // Cursor glow
   const glow = document.getElementById('glow');
   document.addEventListener('mousemove', e => {
@@ -679,41 +696,99 @@
   }
 
   // Login validation
-  function handleLogin() {
-    const email = document.getElementById('email');
-    const password = document.getElementById('password');
-    const emailErr = document.getElementById('emailErr');
-    const pwErr = document.getElementById('pwErr');
+ // ── Connexion avec vérification Firebase ──
+async function handleLogin() {
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const emailErr = document.getElementById('emailErr');
+  const pwErr    = document.getElementById('pwErr');
+  const btn      = document.querySelector('.btn-connect');
 
-    let valid = true;
-    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Reset des erreurs visuelles
+  emailInput.classList.remove('input-error');
+  passwordInput.classList.remove('input-error');
+  emailErr.classList.remove('show');
+  pwErr.classList.remove('show');
 
-    // Reset
-    email.classList.remove('input-error');
-    password.classList.remove('input-error');
-    emailErr.classList.remove('show');
-    pwErr.classList.remove('show');
+  // Validation format (inchangée)
+  let valid = true;
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!emailRe.test(email.value.trim())) {
-      email.classList.add('input-error');
-      emailErr.classList.add('show');
-      valid = false;
-    }
-    if (password.value.length < 6) {
-      password.classList.add('input-error');
-      pwErr.classList.add('show');
-      valid = false;
-    }
-
-    if (!valid) {
-      document.querySelector('.login-box').classList.add('shake');
-      setTimeout(() => document.querySelector('.login-box').classList.remove('shake'), 450);
-      return;
-    }
-
-    window.location.href = 'minerva-dashboard.html';
+  if (!emailRe.test(emailInput.value.trim())) {
+    emailInput.classList.add('input-error');
+    emailErr.textContent = 'Veuillez saisir un e-mail valide.';
+    emailErr.classList.add('show');
+    valid = false;
+  }
+  if (passwordInput.value.length < 6) {
+    passwordInput.classList.add('input-error');
+    pwErr.textContent = 'Mot de passe requis (min. 6 caractères).';
+    pwErr.classList.add('show');
+    valid = false;
   }
 
+  if (!valid) {
+    document.querySelector('.login-box').classList.add('shake');
+    setTimeout(() => document.querySelector('.login-box').classList.remove('shake'), 450);
+    return;
+  }
+
+  // ── Vérification Firebase ──
+  btn.textContent = 'Connexion en cours…';
+  btn.disabled = true;
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      emailInput.value.trim(),
+      passwordInput.value
+    );
+
+    // Connexion réussie → stocker infos + rediriger
+    const user = userCredential.user;
+    localStorage.setItem('minerva_token', await user.getIdToken());
+    localStorage.setItem('minerva_user',  JSON.stringify({
+      uid:   user.uid,
+      email: user.email,
+      name:  user.displayName || 'Utilisateur'
+    }));
+
+    btn.textContent = '✅ Connexion réussie…';
+    btn.style.background = '#3AAF85';
+
+    setTimeout(() => {
+      window.location.href = 'minerva-dashboard.html';
+    }, 700);
+
+  } catch (error) {
+    // Identifiants incorrects ou compte inexistant
+    btn.textContent = 'Se connecter';
+    btn.disabled = false;
+
+    const codesErreur = [
+      'auth/invalid-credential',
+      'auth/wrong-password',
+      'auth/user-not-found',
+      'auth/invalid-email',
+      'auth/too-many-requests'
+    ];
+
+    if (codesErreur.includes(error.code)) {
+      emailInput.classList.add('input-error');
+      passwordInput.classList.add('input-error');
+      emailErr.textContent =
+        error.code === 'auth/too-many-requests'
+          ? 'Trop de tentatives. Réessayez dans quelques minutes.'
+          : 'Email ou mot de passe incorrect.';
+      emailErr.classList.add('show');
+      document.querySelector('.login-box').classList.add('shake');
+      setTimeout(() => document.querySelector('.login-box').classList.remove('shake'), 450);
+    } else {
+      showToast('Erreur inattendue. Vérifiez votre connexion internet.');
+      console.error('Firebase error:', error.code);
+    }
+  }
+}
   // Enter key submits
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter') handleLogin();
@@ -731,7 +806,8 @@
 
   
   // Année dynamique dans le copyright
-  document.getElementById('footerYear').textContent = new Date().getFullYear();
+ const yearEl = document.getElementById('footerYear');
+if (yearEl) yearEl.textContent = new Date().getFullYear();
  
   // Abonnement newsletter (simulation)
   function subscribeNL(btn) {

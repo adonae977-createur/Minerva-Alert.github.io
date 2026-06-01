@@ -625,7 +625,7 @@
         <div class="input-group">
           <div class="input-wrap">
             <input type="password" id="password" placeholder="Mot de passe" autocomplete="current-password" />
-            <button class="toggle-pw" onclick="togglePw()" type="button" title="Afficher/masquer">
+            <button class="toggle-pw" onclick="loginWithGoogle()" type="button" title="Afficher/masquer">
               <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
@@ -634,8 +634,8 @@
         <label class="remember">
           <input type="checkbox" id="remember" checked /> Rester connecté
         </label>
-        <button class="btn-connect" onclick="handleLogin()">Se connecter</button>
-        <a href="#" class="forgot-link" onclick="showToast('Lien de réinitialisation envoyé ✉️')">Mot de passe oublié ?</a>
+        <button class="btn-connect" onclick="loginWithGoogle()"Se connecter/button>
+        <a href="#" class="forgot-link" onclick="forgotPassword()('Lien de réinitialisation envoyé ✉️')">Mot de passe oublié ?</a>
       </div>
 
       <!-- Vertical separator -->
@@ -661,170 +661,215 @@
 </div>
 
 <script type="module">
-// ── Imports Firebase (remplace 10.x.x par ta version exacte) ──
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// ── Config Firebase (copie depuis ta console Firebase) ──
-const firebaseConfig = {
-  apiKey:            "COLLE_TON_API_KEY_ICI",
-  authDomain:        "COLLE_TON_AUTH_DOMAIN_ICI",
-  projectId:         "COLLE_TON_PROJECT_ID_ICI",
-  storageBucket:     "COLLE_TON_STORAGE_BUCKET_ICI",
-  messagingSenderId: "COLLE_TON_MESSAGING_SENDER_ID_ICI",
-  appId:             "COLLE_TON_APP_ID_ICI"
-};
-
-// Initialisation Firebase
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-  // Cursor glow
-  const glow = document.getElementById('glow');
-  document.addEventListener('mousemove', e => {
-    glow.style.transform = `translate(${e.clientX - 170}px, ${e.clientY - 170}px)`;
-  });
-
-  // Toggle password visibility
-  let pwVisible = false;
-  function togglePw() {
-    pwVisible = !pwVisible;
-    const input = document.getElementById('password');
-    input.type = pwVisible ? 'text' : 'password';
-    document.getElementById('eyeIcon').innerHTML = pwVisible
-      ? '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
-      : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+ // ── Vérification obligatoire à l'entrée du dashboard ──────
+(function protegerDashboard() {
+  const token = sessionStorage.getItem('minerva_token');
+  if (!token) {
+    // Pas de session → retour forcé à la connexion
+    window.location.replace('minerva-connexion.html');
   }
+})();
 
-  // Login validation
- // ── Connexion avec vérification Firebase ──
+// Récupérer le nom réel de l'utilisateur connecté
+const userName  = sessionStorage.getItem('minerva_name')  || 'Utilisateur';
+const userEmail = sessionStorage.getItem('minerva_email') || '';
+
+// Afficher dans le dashboard (si tu as un élément avec cet id)
+const greetEl = document.querySelector('.tb-greeting strong');
+if (greetEl) greetEl.textContent = userName;
+// ── Imports Firebase ──────────────────────────────────────
+import { auth }                              from "./firebase-config.js";
+import {
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  sendPasswordResetEmail
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// ── Cursor glow (inchangé) ────────────────────────────────
+const glow = document.getElementById('glow');
+document.addEventListener('mousemove', e => {
+  glow.style.transform = `translate(${e.clientX - 170}px, ${e.clientY - 170}px)`;
+});
+
+// ── Afficher/masquer mot de passe (inchangé) ──────────────
+let pwVisible = false;
+function togglePw() {
+  pwVisible = !pwVisible;
+  const input = document.getElementById('password');
+  input.type = pwVisible ? 'text' : 'password';
+  document.getElementById('eyeIcon').innerHTML = pwVisible
+    ? '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+    : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+}
+// Rendre togglePw accessible depuis le HTML onclick=""
+window.togglePw = togglePw;
+
+// ── Connexion Email / Mot de passe ────────────────────────
 async function handleLogin() {
   const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
-  const emailErr = document.getElementById('emailErr');
-  const pwErr    = document.getElementById('pwErr');
-  const btn      = document.querySelector('.btn-connect');
+  const passInput  = document.getElementById('password');
+  const emailErr   = document.getElementById('emailErr');
+  const pwErr      = document.getElementById('pwErr');
+  const btn        = document.querySelector('.btn-connect');
 
-  // Reset des erreurs visuelles
+  // Reset erreurs visuelles
   emailInput.classList.remove('input-error');
-  passwordInput.classList.remove('input-error');
+  passInput.classList.remove('input-error');
   emailErr.classList.remove('show');
   pwErr.classList.remove('show');
 
-  // Validation format (inchangée)
+  // Validation format local
   let valid = true;
-  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (!emailRe.test(emailInput.value.trim())) {
+  if (!re.test(emailInput.value.trim())) {
     emailInput.classList.add('input-error');
     emailErr.textContent = 'Veuillez saisir un e-mail valide.';
     emailErr.classList.add('show');
     valid = false;
   }
-  if (passwordInput.value.length < 6) {
-    passwordInput.classList.add('input-error');
+  if (passInput.value.length < 6) {
+    passInput.classList.add('input-error');
     pwErr.textContent = 'Mot de passe requis (min. 6 caractères).';
     pwErr.classList.add('show');
     valid = false;
   }
-
   if (!valid) {
     document.querySelector('.login-box').classList.add('shake');
     setTimeout(() => document.querySelector('.login-box').classList.remove('shake'), 450);
     return;
   }
 
-  // ── Vérification Firebase ──
-  btn.textContent = 'Connexion en cours…';
-  btn.disabled = true;
+  // Chargement visuel
+  btn.textContent = 'Vérification…';
+  btn.disabled    = true;
 
   try {
-    const userCredential = await signInWithEmailAndPassword(
+    // ✅ Firebase vérifie vraiment les identifiants
+    const credential = await signInWithEmailAndPassword(
       auth,
       emailInput.value.trim(),
-      passwordInput.value
+      passInput.value
     );
 
-    // Connexion réussie → stocker infos + rediriger
-    const user = userCredential.user;
-    localStorage.setItem('minerva_token', await user.getIdToken());
-    localStorage.setItem('minerva_user',  JSON.stringify({
-      uid:   user.uid,
-      email: user.email,
-      name:  user.displayName || 'Utilisateur'
-    }));
+    // Stocker le token pour protéger le dashboard
+    const token = await credential.user.getIdToken();
+    sessionStorage.setItem('minerva_token', token);
+    sessionStorage.setItem('minerva_uid',   credential.user.uid);
+    sessionStorage.setItem('minerva_email', credential.user.email);
+    sessionStorage.setItem('minerva_name',
+      credential.user.displayName || credential.user.email.split('@')[0]
+    );
 
-    btn.textContent = '✅ Connexion réussie…';
+    btn.textContent      = '✅ Connexion réussie…';
     btn.style.background = '#3AAF85';
-
-    setTimeout(() => {
-      window.location.href = 'minerva-dashboard.html';
-    }, 700);
+    setTimeout(() => { window.location.href = 'minerva-dashboard.html'; }, 700);
 
   } catch (error) {
-    // Identifiants incorrects ou compte inexistant
     btn.textContent = 'Se connecter';
-    btn.disabled = false;
+    btn.disabled    = false;
 
-    const codesErreur = [
-      'auth/invalid-credential',
-      'auth/wrong-password',
-      'auth/user-not-found',
-      'auth/invalid-email',
-      'auth/too-many-requests'
-    ];
+    // Messages d'erreur en français selon le code Firebase
+    const messages = {
+      'auth/invalid-credential' : 'Email ou mot de passe incorrect.',
+      'auth/wrong-password'     : 'Mot de passe incorrect.',
+      'auth/user-not-found'     : 'Aucun compte trouvé avec cet email.',
+      'auth/invalid-email'      : 'Format d\'email invalide.',
+      'auth/user-disabled'      : 'Ce compte a été désactivé.',
+      'auth/too-many-requests'  : 'Trop de tentatives. Réessayez dans quelques minutes.',
+    };
+    const msg = messages[error.code] || 'Erreur de connexion. Vérifiez vos identifiants.';
 
-    if (codesErreur.includes(error.code)) {
-      emailInput.classList.add('input-error');
-      passwordInput.classList.add('input-error');
-      emailErr.textContent =
-        error.code === 'auth/too-many-requests'
-          ? 'Trop de tentatives. Réessayez dans quelques minutes.'
-          : 'Email ou mot de passe incorrect.';
-      emailErr.classList.add('show');
-      document.querySelector('.login-box').classList.add('shake');
-      setTimeout(() => document.querySelector('.login-box').classList.remove('shake'), 450);
-    } else {
-      showToast('Erreur inattendue. Vérifiez votre connexion internet.');
-      console.error('Firebase error:', error.code);
+    emailInput.classList.add('input-error');
+    passInput.classList.add('input-error');
+    emailErr.textContent = msg;
+    emailErr.classList.add('show');
+    document.querySelector('.login-box').classList.add('shake');
+    setTimeout(() => document.querySelector('.login-box').classList.remove('shake'), 450);
+  }
+}
+window.handleLogin = handleLogin;
+
+// ── Connexion avec Google ─────────────────────────────────
+async function loginWithGoogle() {
+  const provider = new GoogleAuthProvider();
+  try {
+    // ✅ Ouvre la vraie fenêtre de connexion Google
+    const result = await signInWithPopup(auth, provider);
+    const user   = result.user;
+
+    const token = await user.getIdToken();
+    sessionStorage.setItem('minerva_token', token);
+    sessionStorage.setItem('minerva_uid',   user.uid);
+    sessionStorage.setItem('minerva_email', user.email);
+    // ✅ Utilise le VRAI nom du compte Google
+    sessionStorage.setItem('minerva_name',  user.displayName || user.email.split('@')[0]);
+
+    showToast('✅ Connecté avec Google — ' + user.displayName);
+    setTimeout(() => { window.location.href = 'minerva-dashboard.html'; }, 1000);
+
+  } catch (error) {
+    if (error.code !== 'auth/popup-closed-by-user') {
+      showToast('Erreur Google : ' + (error.message || 'réessayez.'));
     }
   }
 }
-  // Enter key submits
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Enter') handleLogin();
-  });
+window.loginWithGoogle = loginWithGoogle;
 
-  // Toast
-  let toastTimer;
-  function showToast(msg) {
-    const toast = document.getElementById('toast');
-    document.getElementById('toastMsg').textContent = msg;
-    toast.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+// ── Mot de passe oublié ───────────────────────────────────
+async function forgotPassword() {
+  const emailInput = document.getElementById('email');
+  const email      = emailInput.value.trim();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    emailInput.classList.add('input-error');
+    showToast('Saisissez d\'abord votre adresse e-mail.');
+    return;
   }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showToast('✉️ Lien de réinitialisation envoyé sur ' + email);
+  } catch {
+    showToast('Aucun compte trouvé avec cet email.');
+  }
+}
+window.forgotPassword = forgotPassword;
 
-  
-  // Année dynamique dans le copyright
- const yearEl = document.getElementById('footerYear');
+// ── Touche Entrée ─────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleLogin();
+});
+
+// ── Toast ─────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+}
+window.showToast = showToast;
+
+// ── Footer année ──────────────────────────────────────────
+const yearEl = document.getElementById('footerYear');
 if (yearEl) yearEl.textContent = new Date().getFullYear();
- 
-  // Abonnement newsletter (simulation)
-  function subscribeNL(btn) {
-    const input = btn.previousElementSibling;
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!re.test(input.value.trim())) {
-      input.style.borderColor = '#EF4444';
-      input.placeholder = 'E-mail invalide…';
-      setTimeout(() => { input.style.borderColor = ''; input.placeholder = 'votre@email.com'; }, 2000);
-      return;
-    }
-    btn.textContent = '✓ Abonné !';
-    btn.style.background = '#3AAF85';
-    btn.disabled = true;
-    input.value = '';
-    input.placeholder = 'Merci pour votre inscription !';
+
+// ── Newsletter ────────────────────────────────────────────
+window.subscribeNL = function(btn) {
+  const input = btn.previousElementSibling;
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!re.test(input.value.trim())) {
+    input.style.borderColor = '#EF4444';
+    setTimeout(() => { input.style.borderColor = ''; }, 2000);
+    return;
   }
+  btn.textContent      = '✓ Abonné !';
+  btn.style.background = '#3AAF85';
+  btn.disabled         = true;
+  input.value          = '';
+};
 </script>
 <!-- ============================================================
      MINERVA ALERT — FOOTER UNIVERSEL
